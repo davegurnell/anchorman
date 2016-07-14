@@ -6,6 +6,8 @@ version := "0.1.0"
 
 scalaVersion in ThisBuild := "2.11.8"
 
+resolvers += "Awesome Utilities" at "https://dl.bintray.com/davegurnell/maven"
+
 libraryDependencies ++= Seq(
   "com.davegurnell"        %% "bulletin"          % "0.6.0",
   "com.davegurnell"        %% "unindent"          % "1.0.0",

@@ -1,0 +1,14 @@
+<configuration>
+  <appender name="OUTPUT" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>%date{ISO8601} %-5level %logger{36} - %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <logger name="com.ning.http.client" level="WARN" />
+  <logger name="play.api.libs.ws"     level="WARN" />
+
+  <root level="WARN">
+    <appender-ref ref="OUTPUT" />
+  </root>
+</configuration>

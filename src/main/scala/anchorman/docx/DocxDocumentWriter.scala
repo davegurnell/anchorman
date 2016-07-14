@@ -1,0 +1,366 @@
+package anchorman.docx
+
+import anchorman.core._
+import anchorman.media._
+import cats._
+import cats.data.State
+import cats.std.all._
+import cats.syntax.all._
+
+import scala.xml.NodeSeq
+
+class DocxDocumentWriter(val styleWriter: DocxStyleWriter) {
+  import DocxDocumentWriter._
+
+  def writeDocumentXml(doc: Document, media: MediaMap): NodeSeq = {
+    val Document(block, pageStyle, _, _, _, _) = doc
+
+    val seed = DocumentSeed(
+      availableWidth = pageStyle.availableWidth,
+      media          = media
+    )
+
+    val content = writeBlock(block).runA(seed).value
+
+    <w:document xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math"
+                xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                xmlns:mo="http://schemas.microsoft.com/office/mac/office/2008/main"
+                xmlns:mv="urn:schemas-microsoft-com:mac:vml"
+                xmlns:o="urn:schemas-microsoft-com:office:office"
+                xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"
+                xmlns:v="urn:schemas-microsoft-com:vml"
+                xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"
+                xmlns:w10="urn:schemas-microsoft-com:office:word"
+                xmlns:w14="http://schemas.microsoft.com/office/word/2010/wordml"
+                xmlns:wne="http://schemas.microsoft.com/office/word/2006/wordml"
+                xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"
+                xmlns:wp14="http://schemas.microsoft.com/office/word/2010/wordprocessingDrawing"
+                xmlns:wpc="http://schemas.microsoft.com/office/word/2010/wordprocessingCanvas"
+                xmlns:wpg="http://schemas.microsoft.com/office/word/2010/wordprocessingGroup"
+                xmlns:wpi="http://schemas.microsoft.com/office/word/2010/wordprocessingInk"
+                xmlns:wps="http://schemas.microsoft.com/office/word/2010/wordprocessingShape"
+                xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"
+                xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">
+      <w:body>
+        {content}
+        <w:sectPr>{writePageStyle(pageStyle)}</w:sectPr>
+      </w:body>
+    </w:document>
+  }
+
+  def writeBlock(block: Block): DocumentState[NodeSeq] =
+    block match {
+      case EmptyBlock =>
+        State.pure(NodeSeq.Empty)
+
+      case Para(span, tpe, style) =>
+        writePara(span, tpe, style)
+
+      case OrderedList(items) =>
+        writeList(items)
+
+      case UnorderedList(items) =>
+        writeList(items)
+
+      case Columns(blocks) =>
+        writeColumns(blocks)
+
+      case table: Table =>
+        for {
+          a <- writeTable(table)
+          b <- writeBlock(Para.empty)
+        } yield a ++ b
+
+      case Image(url) =>
+        writeImage(url)
+
+      case BlockSeq(blocks) =>
+        blocks.foldLeft(emptyXml) { (accum, block) =>
+          for {
+            a <- accum
+            b <- writeBlock(block)
+          } yield a ++ b
+        }
+    }
+
+  def writePara(span: Span, tpe: ParaType, style: ParaStyle): DocumentState[NodeSeq] =
+    for {
+      numbering <- getNumbering
+      content   <- writeSpan(span)
+    } yield {
+      val styleName: String =
+        tpe match {
+          case ParaType.Title    => "Title"
+          case ParaType.Heading1 => "Heading1"
+          case ParaType.Heading2 => "Heading2"
+          case ParaType.Heading3 => "Heading3"
+          case ParaType.Default  if numbering.nonEmpty => "ListParagraph"
+          case ParaType.Default  => "Normal"
+        }
+
+      <w:p>
+        <w:pPr>
+          <w:pStyle w:val={styleName}/>
+          { styleWriter.writeParaStyle(style) }
+          {
+            numbering match {
+              case Some(Numbering(ilvl, numId)) =>
+                <w:numPr>
+                  <w:ilvl w:val={ilvl.toString}/>
+                  <w:numId w:val={numId.toString}/>
+                </w:numPr>
+              case None =>
+                NodeSeq.Empty
+            }
+          }
+        </w:pPr>
+        {content}
+      </w:p>
+    }
+
+  def writeList(items: Seq[ListItem]): DocumentState[NodeSeq] =
+    for {
+      _   <- pushList
+      ans <- items.foldLeft(emptyXml) { (accum, item) =>
+               for {
+                 a <- accum
+                 b <- writeBlock(item.block)
+               } yield a ++ b
+             }
+      _   <- popList
+    } yield ans
+
+  def writeColumns(columns: Seq[Block]): DocumentState[NodeSeq] =
+    writeTable(Table(Seq(TableRow(columns.map(TableCell(_))))))
+
+  def writeTable(table: Table): DocumentState[NodeSeq] = {
+    val Table(rows, _, style) = table
+    val columns = table.columns
+
+    for {
+      width      <- getAvailableWidth
+      cellWidths <- getCellWidths(table, width)
+      rowsXml    <- rows.toList.map(row => writeTableRow(row, cellWidths, style)).sequenceU.map(_.flatten)
+    } yield {
+      <w:tbl>
+        <w:tblPr>
+          <w:tblW w:w={width.dxa.toString} w:type="dxa"/>
+          {styleWriter.writeTableStyle(style)}
+        </w:tblPr>
+        {rowsXml}
+      </w:tbl>
+    }
+  }
+
+  def writeTableRow(row: TableRow, cellWidths: Seq[Dim], tableStyle: TableStyle): DocumentState[NodeSeq] =
+    writeTableCells(row.cells, cellWidths, tableStyle).map(cell => <w:tr>{ cell }</w:tr>)
+
+
+  def writeTableCells(cells: Seq[TableCell], cellWidths: Seq[Dim], tableStyle: TableStyle): DocumentState[NodeSeq] =
+    (cells zip cellWidths).foldLeft(emptyXml) { (accum, pair) =>
+      val (cell, cellWidth) = pair
+
+      for {
+        a <- accum
+        w <- getAvailableWidth
+        _ <- setAvailableWidth(cellWidth - tableStyle.margin.left - tableStyle.margin.right - tableStyle.cellMargin.left - tableStyle.cellMargin.right)
+        b <- writeBlockWithTrailingPara(cell.block)
+        _ <- setAvailableWidth(w)
+      } yield {
+        a ++
+        <w:tc>
+          <w:tcPr>
+            <w:tcW w:w={cellWidth.dxa.toString} w:type="dxa"/>
+          </w:tcPr>
+          {b}
+        </w:tc>
+      }
+    }
+
+  def writeImage(url: String): DocumentState[NodeSeq] =
+    getMediaFile(url) flatMap {
+      case Some(ImageMediaFile(relId, filename, contentType, pixelWidth, pixelHeight, content)) =>
+        for {
+          index <- getMediaIndex
+          width <- getAvailableWidth
+          height = width * pixelHeight / pixelWidth
+        } yield {
+          <w:p>
+            <w:r>
+              <w:drawing>
+                <wp:inline>
+                  <wp:extent cx={width.emu.toString} cy={height.emu.toString}/> <!-- TODO: Fix up -->
+                  <wp:docPr id="1" name={filename}/> <!-- TODO: Fix up -->
+                  <a:graphic>
+                    <a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture">
+                      <pic:pic>
+                        <pic:nvPicPr>
+                          <pic:cNvPr id={index.toString} name={filename} />
+                          <pic:cNvPicPr/>
+                        </pic:nvPicPr>
+                        <pic:blipFill>
+                          <a:blip r:embed={relId}>
+                          </a:blip>
+                          <a:stretch>
+                            <a:fillRect/>
+                          </a:stretch>
+                        </pic:blipFill>
+                        <pic:spPr>
+                          <a:xfrm>
+                            <a:off x="0" y="0"/>
+                            <a:ext cx={width.emu.toString} cy={height.emu.toString}/>
+                          </a:xfrm>
+                          <a:prstGeom prst="rect">
+                            <a:avLst/>
+                          </a:prstGeom>
+                        </pic:spPr>
+                      </pic:pic>
+                    </a:graphicData>
+                  </a:graphic>
+                </wp:inline>
+              </w:drawing>
+            </w:r>
+          </w:p> : NodeSeq
+        }
+
+      case Some(PlainMediaFile(relId, filename, contentType, content)) =>
+        emptyXml
+
+      case None =>
+        emptyXml
+    }
+
+  def writeSpan(span: Span): DocumentState[NodeSeq] =
+    span match {
+      case EmptySpan =>
+        emptyXml
+
+      case Text(text, style) =>
+        writeText(text, style)
+
+      case SpanSeq(spans) =>
+        spans.foldLeft(emptyXml) { (accum, span) =>
+          for {
+            a <- accum
+            b <- writeSpan(span)
+          } yield a ++ b
+        }
+    }
+
+  def writeText(text: String, style: TextStyle): DocumentState[NodeSeq] =
+    State.pure {
+      <w:r>
+        <w:rPr>
+          {styleWriter.writeTextStyle(style)}
+        </w:rPr>
+        <w:t>{text}</w:t>
+      </w:r>
+    }
+
+  def writeBlockWithTrailingPara(block: Block): DocumentState[NodeSeq] =
+    if (blockEndsWithPara(block)) {
+      writeBlock(block)
+    } else {
+      writeBlock(block) // ++ writeBlock(Para(EmptySpan)) // Looks like we don't need this.
+    }
+
+  def blockEndsWithPara(block: Block): Boolean =
+    block match {
+      case EmptyBlock       => false
+      case BlockSeq(blocks) => blocks.lastOption.exists(blockEndsWithPara)
+      case _: Para          => true
+      case _: Image         => false
+      case _: UnorderedList => false
+      case _: OrderedList   => false
+      case _: Columns       => false
+      case _: Table         => false
+    }
+
+  def writePageStyle(pageStyle: PageStyle): DocumentState[NodeSeq] =
+    State.pure {
+      <w:pgSz w:w={pageStyle.size.width.dxa.toString}
+              w:h={pageStyle.size.height.dxa.toString}/> ++
+      <w:pgMar w:top={pageStyle.margin.top.dxa.toString}
+               w:right={pageStyle.margin.right.dxa.toString}
+               w:bottom={pageStyle.margin.bottom.dxa.toString}
+               w:left={pageStyle.margin.left.dxa.toString}/>
+    }
+}
+
+object DocxDocumentWriter {
+  val listIndent        = 360.dxa
+  val listHangingIndent = 360.dxa
+
+  case class DocumentSeed(
+    availableWidth: Dim = Dims.defaultPageSize.width,
+    media: MediaMap = Map.empty,
+    nextMediaId: Int = 0,
+    currListIds: List[Int] = Nil,
+    nextListId: Int = 1
+  )
+
+  type DocumentState[A] = State[DocumentSeed, A]
+
+  val emptyXml: DocumentState[NodeSeq] =
+    State.pure(NodeSeq.Empty)
+
+  val getAvailableWidth: DocumentState[Dim] =
+    State.inspect(_.availableWidth)
+
+  def setAvailableWidth(width: Dim): DocumentState[Unit] =
+    State.modify(_.copy(availableWidth = width))
+
+  def getCellWidths(table: Table, availableWidth: Dim): DocumentState[Seq[Dim]] =
+    State.pure {
+      val numAuto = table.columns.count {
+        case _: TableColumn.Fixed => false
+        case TableColumn.Auto     => true
+      }
+
+      val remainingWidth =
+        availableWidth -
+        table.style.margin.left -
+        table.style.margin.right -
+        table.columns.collect {
+          case TableColumn.Fixed(width) => width
+        }.foldLeft(Dim.zero)(_ + _)
+
+      table.columns map {
+        case TableColumn.Auto       => remainingWidth / numAuto
+        case TableColumn.Fixed(len) => len
+      }
+    }
+
+  val pushList: DocumentState[Unit] =
+    State.modify { state =>
+      state.copy(
+        availableWidth = state.availableWidth - listIndent - listHangingIndent,
+        currListIds = state.nextListId :: state.currListIds,
+        nextListId = state.nextListId + 1
+      )
+    }
+
+  val popList: DocumentState[Unit] =
+    State.modify { state =>
+      state.copy(
+        currListIds = state.currListIds.tail
+      )
+    }
+
+  case class Numbering(ilvl: Int, numId: Int)
+
+  val getNumbering: DocumentState[Option[Numbering]] =
+    State.inspect { state =>
+      if(state.currListIds.isEmpty) {
+        None
+      } else {
+        Some(Numbering(state.currListIds.length - 1, state.currListIds.head))
+      }
+    }
+
+  val getMediaIndex: DocumentState[Int] =
+    State.apply(seed => (seed.copy(nextMediaId = seed.nextMediaId + 1), seed.nextMediaId))
+
+  def getMediaFile(url: String): DocumentState[Option[MediaFile]] =
+    State.inspect(_.media.get(url))
+}

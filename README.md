@@ -1,7 +1,7 @@
 # Anchorman
 
-Reporti generation library.
-Produces downloadable documents (DOCX, HTML, etc) from structured Scala objects.
+Report generation library.
+Produces downloadable documents (DOCX, HTML, etc) from a Scala AST.
 Early alpha status. Work in progress.
 
 Copyright 2016 Dave Gurnell. Licensed [Apache 2][license].

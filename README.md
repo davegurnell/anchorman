@@ -17,3 +17,6 @@ resolvers += "Awesome Utilities" at "https://dl.bintray.com/davegurnell/maven"
 
 libraryDependencies += "com.davegurnell" %% "anchorman" % "0.1.0"
 ~~~
+
+[license]: http://www.apache.org/licenses/LICENSE-2.0
+

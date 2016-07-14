@@ -3,16 +3,19 @@ package anchorman.html
 import anchorman.core._
 import java.io._
 import unindent._
+import scala.concurrent.{ExecutionContext => EC, _}
 
-object HtmlWriter {
-  def write(doc: Document, file: File): Unit = {
-    val out = new FileWriter(file)
-    try {
-      out.write(writeDocument(doc))
-    } finally {
-      out.close()
+object HtmlWriter extends DocumentWriter {
+  def write(doc: Document, stream: OutputStream)(implicit ec: EC): Future[OutputStream] =
+    Future.successful {
+      val writer = new OutputStreamWriter(stream)
+      try {
+        writer.write(writeDocument(doc))
+        stream
+      } finally {
+        writer.close()
+      }
     }
-  }
 
   def writeDocument(doc: Document): String = {
     val Document(block, _, _, _, _, _) = doc

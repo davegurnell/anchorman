@@ -8,29 +8,32 @@ import anchorman.media._
 
 import scala.concurrent.{ExecutionContext => EC, _}
 
-class DocxWriter(val mediaDownloader: MediaDownloader) {
+class DocxWriter(val mediaDownloader: MediaDownloader) extends DocumentWriter {
   val metadataWriter  = new DocxMetadataWriter
   val numberingWriter = new DocxNumberingWriter
   val styleWriter     = new DocxStyleWriter
   val documentWriter  = new DocxDocumentWriter(styleWriter)
 
-  def write(doc: Document, file: File)(implicit ec: EC): Future[Unit] =
-    mediaDownloader.downloadMediaFiles(mediaDownloader.imageUrls(doc.block)) map { media: MediaMap =>
+  def write(doc: Document, stream: OutputStream)(implicit ec: EC): Future[OutputStream] = {
+    val zip = new ZipOutputStream(stream)
+    try {
       import ZipImplicits._
 
-      val out = new ZipOutputStream(new FileOutputStream(file))
-      try {
-        out.writeXmlFile("[Content_Types].xml",          metadataWriter.writeContentTypes(doc))
-        out.writeXmlFile("_rels/.rels",                  metadataWriter.writeRootRels(doc))
-        out.writeXmlFile("word/_rels/document.xml.rels", metadataWriter.writeDocumentRels(doc, media))
-        out.writeXmlFile("word/document.xml",            documentWriter.writeDocumentXml(doc, media))
-        out.writeXmlFile("word/numbering.xml",           numberingWriter.writeNumberingXml(doc))
-        out.writeXmlFile("word/styles.xml",              styleWriter.writeStylesXml(doc, media))
+      mediaDownloader.downloadMediaFiles(mediaDownloader.imageUrls(doc.block)) map { media: MediaMap =>
+        zip.writeXmlFile("[Content_Types].xml",          metadataWriter.writeContentTypes(doc))
+        zip.writeXmlFile("_rels/.rels",                  metadataWriter.writeRootRels(doc))
+        zip.writeXmlFile("word/_rels/document.xml.rels", metadataWriter.writeDocumentRels(doc, media))
+        zip.writeXmlFile("word/document.xml",            documentWriter.writeDocumentXml(doc, media))
+        zip.writeXmlFile("word/numbering.xml",           numberingWriter.writeNumberingXml(doc))
+        zip.writeXmlFile("word/styles.xml",              styleWriter.writeStylesXml(doc, media))
         for (file <- media.values) {
-          out.writeMediaFile("word/media/" + file.filename, file)
+          zip.writeMediaFile("word/media/" + file.filename, file)
         }
-      } finally {
-        out.close()
+
+        stream
       }
+    } finally {
+      zip.close()
     }
+  }
 }

@@ -6,12 +6,11 @@ import unindent._
 import scala.concurrent.{ExecutionContext => EC, _}
 
 object HtmlWriter extends DocumentWriter {
-  def write(doc: Document, stream: OutputStream)(implicit ec: EC): Future[OutputStream] =
+  def write(doc: Document, stream: OutputStream)(implicit ec: EC): Future[Unit] =
     Future.successful {
       val writer = new OutputStreamWriter(stream)
       try {
         writer.write(writeDocument(doc))
-        stream
       } finally {
         writer.close()
       }

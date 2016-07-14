@@ -14,12 +14,12 @@ class DocxWriter(val mediaDownloader: MediaDownloader) extends DocumentWriter {
   val styleWriter     = new DocxStyleWriter
   val documentWriter  = new DocxDocumentWriter(styleWriter)
 
-  def write(doc: Document, stream: OutputStream)(implicit ec: EC): Future[OutputStream] = {
-    val zip = new ZipOutputStream(stream)
-    try {
-      import ZipImplicits._
+  def write(doc: Document, stream: OutputStream)(implicit ec: EC): Future[Unit] = {
+    mediaDownloader.downloadMediaFiles(mediaDownloader.imageUrls(doc.block)) map { media: MediaMap =>
+      val zip = new ZipOutputStream(stream)
+      try {
+        import ZipImplicits._
 
-      mediaDownloader.downloadMediaFiles(mediaDownloader.imageUrls(doc.block)) map { media: MediaMap =>
         zip.writeXmlFile("[Content_Types].xml",          metadataWriter.writeContentTypes(doc))
         zip.writeXmlFile("_rels/.rels",                  metadataWriter.writeRootRels(doc))
         zip.writeXmlFile("word/_rels/document.xml.rels", metadataWriter.writeDocumentRels(doc, media))
@@ -29,11 +29,9 @@ class DocxWriter(val mediaDownloader: MediaDownloader) extends DocumentWriter {
         for (file <- media.values) {
           zip.writeMediaFile("word/media/" + file.filename, file)
         }
-
-        stream
+      } finally {
+        zip.close()
       }
-    } finally {
-      zip.close()
     }
   }
 }

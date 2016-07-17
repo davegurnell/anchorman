@@ -1,6 +1,7 @@
 package anchorman
 
 import anchorman.core._
+import anchorman.syntax._
 
 class TablesIntegrationSpec extends IntegrationSpec {
   def name = "tables"

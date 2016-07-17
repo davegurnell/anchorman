@@ -61,7 +61,6 @@ object HtmlWriter extends DocumentWriter {
         ${rows.map(writeTableRow).mkString("\n")}
         </table>
         """
-      case Image(url)                       => i"""<img src="${url}">"""
     }
 
   def writeListItem(item: ListItem): String =
@@ -82,8 +81,9 @@ object HtmlWriter extends DocumentWriter {
   def writeSpan(span: Span): String =
     span match {
       case EmptySpan      => ""
-      case SpanSeq(spans) => spans.map(writeSpan).mkString
       case Text(text, _)  => text
+      case Image(url)     => i"""<img src="${url}">"""
+      case SpanSeq(spans) => spans.map(writeSpan).mkString
     }
 
 }

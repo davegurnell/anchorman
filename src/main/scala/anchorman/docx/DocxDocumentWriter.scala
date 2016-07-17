@@ -1,6 +1,7 @@
 package anchorman.docx
 
 import anchorman.core._
+import anchorman.syntax._
 import anchorman.media._
 import cats._
 import cats.data.State
@@ -70,9 +71,6 @@ class DocxDocumentWriter(val styleWriter: DocxStyleWriter) {
           a <- writeTable(table)
           b <- writeBlock(Para.empty)
         } yield a ++ b
-
-      case Image(url) =>
-        writeImage(url)
 
       case BlockSeq(blocks) =>
         blocks.foldLeft(emptyXml) { (accum, block) =>
@@ -177,59 +175,6 @@ class DocxDocumentWriter(val styleWriter: DocxStyleWriter) {
       }
     }
 
-  def writeImage(url: String): DocumentState[NodeSeq] =
-    getMediaFile(url) flatMap {
-      case Some(ImageMediaFile(relId, filename, contentType, pixelWidth, pixelHeight, content)) =>
-        for {
-          index <- getMediaIndex
-          width <- getAvailableWidth
-          height = width * pixelHeight / pixelWidth
-        } yield {
-          <w:p>
-            <w:r>
-              <w:drawing>
-                <wp:inline>
-                  <wp:extent cx={width.emu.toString} cy={height.emu.toString}/> <!-- TODO: Fix up -->
-                  <wp:docPr id="1" name={filename}/> <!-- TODO: Fix up -->
-                  <a:graphic>
-                    <a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture">
-                      <pic:pic>
-                        <pic:nvPicPr>
-                          <pic:cNvPr id={index.toString} name={filename} />
-                          <pic:cNvPicPr/>
-                        </pic:nvPicPr>
-                        <pic:blipFill>
-                          <a:blip r:embed={relId}>
-                          </a:blip>
-                          <a:stretch>
-                            <a:fillRect/>
-                          </a:stretch>
-                        </pic:blipFill>
-                        <pic:spPr>
-                          <a:xfrm>
-                            <a:off x="0" y="0"/>
-                            <a:ext cx={width.emu.toString} cy={height.emu.toString}/>
-                          </a:xfrm>
-                          <a:prstGeom prst="rect">
-                            <a:avLst/>
-                          </a:prstGeom>
-                        </pic:spPr>
-                      </pic:pic>
-                    </a:graphicData>
-                  </a:graphic>
-                </wp:inline>
-              </w:drawing>
-            </w:r>
-          </w:p> : NodeSeq
-        }
-
-      case Some(PlainMediaFile(relId, filename, contentType, content)) =>
-        emptyXml
-
-      case None =>
-        emptyXml
-    }
-
   def writeSpan(span: Span): DocumentState[NodeSeq] =
     span match {
       case EmptySpan =>
@@ -237,6 +182,9 @@ class DocxDocumentWriter(val styleWriter: DocxStyleWriter) {
 
       case Text(text, style) =>
         writeText(text, style)
+
+      case Image(url) =>
+        writeImage(url)
 
       case SpanSeq(spans) =>
         spans.foldLeft(emptyXml) { (accum, span) =>
@@ -255,6 +203,57 @@ class DocxDocumentWriter(val styleWriter: DocxStyleWriter) {
         </w:rPr>
         <w:t>{text}</w:t>
       </w:r>
+    }
+
+  def writeImage(url: String): DocumentState[NodeSeq] =
+    getMediaFile(url) flatMap {
+      case Some(ImageMediaFile(relId, filename, contentType, pixelWidth, pixelHeight, content)) =>
+        for {
+          index <- getMediaIndex
+          width <- getAvailableWidth.map(_ min (1.in * pixelWidth / 150))
+          height = width * pixelHeight / pixelWidth
+        } yield {
+          <w:r>
+            <w:drawing>
+              <wp:inline>
+                <wp:extent cx={width.emu.toString} cy={height.emu.toString}/> <!-- TODO: Fix up -->
+                <wp:docPr id="1" name={filename}/> <!-- TODO: Fix up -->
+                <a:graphic>
+                  <a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture">
+                    <pic:pic>
+                      <pic:nvPicPr>
+                        <pic:cNvPr id={index.toString} name={filename} />
+                        <pic:cNvPicPr/>
+                      </pic:nvPicPr>
+                      <pic:blipFill>
+                        <a:blip r:embed={relId}>
+                        </a:blip>
+                        <a:stretch>
+                          <a:fillRect/>
+                        </a:stretch>
+                      </pic:blipFill>
+                      <pic:spPr>
+                        <a:xfrm>
+                          <a:off x="0" y="0"/>
+                          <a:ext cx={width.emu.toString} cy={height.emu.toString}/>
+                        </a:xfrm>
+                        <a:prstGeom prst="rect">
+                          <a:avLst/>
+                        </a:prstGeom>
+                      </pic:spPr>
+                    </pic:pic>
+                  </a:graphicData>
+                </a:graphic>
+              </wp:inline>
+            </w:drawing>
+          </w:r> : NodeSeq
+        }
+
+      case Some(PlainMediaFile(relId, filename, contentType, content)) =>
+        emptyXml
+
+      case None =>
+        emptyXml
     }
 
   def writeBlockWithTrailingPara(block: Block): DocumentState[NodeSeq] =

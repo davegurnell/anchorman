@@ -15,8 +15,7 @@ class MediaDownloader(val wsClient: WSClient) {
   def imageUrls(block: Block): Seq[String] =
     block match {
       case EmptyBlock           => Seq.empty
-      case BlockSeq(blocks)     => blocks.flatMap(imageUrls)
-      case _: Para              => Seq.empty
+      case Para(span, _, _)     => imageUrls(span)
       case UnorderedList(items) => items.flatMap(item => imageUrls(item.block))
       case OrderedList(items)   => items.flatMap(item => imageUrls(item.block))
       case Columns(blocks)      => blocks.flatMap(imageUrls)
@@ -26,7 +25,15 @@ class MediaDownloader(val wsClient: WSClient) {
           cell <- row.cells
           url <- imageUrls(cell.block)
         } yield url
+      case BlockSeq(blocks)     => blocks.flatMap(imageUrls)
+    }
+
+  def imageUrls(span: Span): Seq[String] =
+    span match {
+      case EmptySpan            => Seq.empty
+      case _ : Text             => Seq.empty
       case Image(url)           => Seq(url)
+      case SpanSeq(spans)       => spans.flatMap(imageUrls)
     }
 
   def downloadMediaFiles(urls: Seq[String])(implicit ec: EC): Future[MediaMap] =
@@ -34,7 +41,7 @@ class MediaDownloader(val wsClient: WSClient) {
       .map(_.toMap)
 
   def downloadMediaFile(url: String)(implicit ec: EC): Future[(String, MediaFile)] =
-    wsClient.url(url).get().map { response =>
+    wsClient.url(url).withFollowRedirects(true).get().map { response =>
       import WSClientImplicits._
 
       val media: MediaFile =

@@ -1,6 +1,7 @@
 package anchorman.docx
 
 import anchorman.core._
+import anchorman.syntax._
 import anchorman.media._
 import cats.data.State
 import cats._
@@ -139,7 +140,6 @@ class DocxNumWriter {
 
       case Columns(blocks)  => writeNumsForBlocks(blocks)
       case table: Table     => writeNumsForBlocks(table.cells.map(_.block))
-      case Image(url)       => emptyXml
       case BlockSeq(blocks) => writeNumsForBlocks(blocks)
     }
 

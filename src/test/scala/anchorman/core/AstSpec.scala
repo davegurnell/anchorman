@@ -1,5 +1,6 @@
 package anchorman.core
 
+import anchorman.syntax._
 import org.scalatest._
 
 class AstSpec extends FreeSpec with Matchers {

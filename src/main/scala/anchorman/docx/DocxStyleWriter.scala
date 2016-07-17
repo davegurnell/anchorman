@@ -1,6 +1,7 @@
 package anchorman.docx
 
 import anchorman.core._
+import anchorman.syntax._
 import anchorman.media._
 
 import scala.xml.NodeSeq
@@ -91,7 +92,25 @@ class DocxStyleWriter {
   }
 
   def writeParaStyle(style: ParaStyle): NodeSeq = {
-    val ParaStyle(spacing) = style
+    val ParaStyle(textAlign, verticalAlign, spacing) = style
+
+    val textAlignStyle: NodeSeq =
+      textAlign match {
+        case Some(TextAlign.Left)   => <w:jc w:val="start"/>
+        case Some(TextAlign.Center) => <w:jc w:val="center"/>
+        case Some(TextAlign.Right)  => <w:jc w:val="end"/>
+        case Some(TextAlign.Full)   => <w:jc w:val="both"/>
+        case None                   => NodeSeq.Empty
+      }
+
+    val verticalAlignStyle: NodeSeq =
+      verticalAlign match {
+        case Some(VerticalAlign.Top)      => <w:textAlignment w:val="top"/>
+        case Some(VerticalAlign.Center)   => <w:textAlignment w:val="center"/>
+        case Some(VerticalAlign.Bottom)   => <w:textAlignment w:val="bottom"/>
+        case Some(VerticalAlign.Baseline) => <w:textAlignment w:val="baseline"/>
+        case None                         => NodeSeq.Empty
+      }
 
     val spacingStyle: NodeSeq =
       spacing match {
@@ -102,7 +121,7 @@ class DocxStyleWriter {
           NodeSeq.Empty
       }
 
-    spacingStyle
+    textAlignStyle ++ spacingStyle
   }
 
   def writeTableStyle(style: TableStyle) = {

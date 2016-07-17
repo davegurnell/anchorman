@@ -1,6 +1,8 @@
-package anchorman.core
+package anchorman.syntax
 
-trait Dsl extends PromoterImplicits with DimImplicits {
+import anchorman.core._
+
+trait Dsl {
   def document[A](blocks: A*)(implicit promoter: BlockPromoter[A]): Document =
     Document(BlockSeq(blocks.map(promoter.apply)))
 
@@ -64,59 +66,4 @@ trait Dsl extends PromoterImplicits with DimImplicits {
 
   def fontSize(size: Dim)(text: String): Text =
     Text(text, TextStyle(size = Some(size)))
-}
-
-trait BlockPromoter[A] {
-  def apply(value: A): Block
-}
-
-object BlockPromoter {
-  def instance[A](func: A => Block): BlockPromoter[A] =
-    new BlockPromoter[A] {
-      def apply(value: A): Block =
-        func(value)
-    }
-}
-
-trait SpanPromoter[A] {
-  def apply(value: A): Span
-}
-
-object SpanPromoter {
-  def instance[A](func: A => Span): SpanPromoter[A] =
-    new SpanPromoter[A] {
-      def apply(value: A): Span =
-        func(value)
-    }
-}
-
-trait PromoterImplicits {
-  implicit def identitySpanPromoter[A <: Span]: SpanPromoter[A] =
-    SpanPromoter.instance[A](identity)
-
-  implicit def identityBlockPromoter[A <: Block]: BlockPromoter[A] =
-    BlockPromoter.instance[A](identity)
-
-  implicit val spanToBlockPromoter: BlockPromoter[Span] =
-    BlockPromoter.instance[Span](Para(_))
-
-  implicit val stringToSpanPromoter: SpanPromoter[String] =
-    SpanPromoter.instance[String](Text(_, TextStyle.empty))
-
-  implicit def spanPromoterToBlockPromoter[A](implicit spanPromoter: SpanPromoter[A]): BlockPromoter[A] =
-    BlockPromoter.instance[A](value => Para(spanPromoter(value)))
-}
-
-trait DimImplicits {
-  implicit class IntOps(value: Int) {
-    def dxa : Dim = Dim(value / 20.0)
-    def pt  : Dim = Dim(value)
-    def in  : Dim = Dim(value * 72.0)
-  }
-
-  implicit class DoubleOps(value: Double) {
-    def dxa : Dim = Dim(value / 20.0)
-    def pt  : Dim = Dim(value)
-    def in  : Dim = Dim(value * 72.0)
-  }
 }

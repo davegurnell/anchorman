@@ -1,6 +1,7 @@
 package anchorman.docx
 
 import anchorman.core._
+import anchorman.syntax._
 import org.scalatest._
 
 import scala.xml.NodeSeq

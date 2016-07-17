@@ -30,9 +30,6 @@ object FopWriter {
       case EmptyBlock =>
         NodeSeq.Empty
 
-      case BlockSeq(blocks) =>
-        blocks.foldLeft(NodeSeq.Empty)(_ ++ writeBlock(_))
-
       case Para(span, tpe, style) =>
         <fo:block>
           { writeSpan(span) }
@@ -52,8 +49,8 @@ object FopWriter {
         // TODO: Tables
         NodeSeq.Empty
 
-      case Image(url) =>
-        ???
+      case BlockSeq(blocks) =>
+        blocks.foldLeft(NodeSeq.Empty)(_ ++ writeBlock(_))
     }
 
   def writeList(items: Seq[ListItem], bullet: Int => NodeSeq): NodeSeq =
@@ -79,10 +76,14 @@ object FopWriter {
       case EmptySpan =>
         NodeSeq.Empty
 
-      case SpanSeq(spans) =>
-        spans.foldLeft(NodeSeq.Empty)(_ ++ writeSpan(_))
-
       case Text(text, style) =>
         XmlText(text)
+
+      case Image(url) =>
+        ???
+
+      case SpanSeq(spans) =>
+        spans.foldLeft(NodeSeq.Empty)(_ ++ writeSpan(_))
     }
+
 }

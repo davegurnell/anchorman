@@ -9,6 +9,8 @@ case class Dim(points: Double) {
   def / (that: Double) = Dim(this.points / that)
   def > (that: Dim) = this.points > that.points
 
+  def unary_- = Dim(-this.points)
+
   def min(that: Dim) = if(this.points < that.points) this else that
   def max(that: Dim) = if(this.points < that.points) that else this
 

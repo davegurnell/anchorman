@@ -1,6 +1,6 @@
 package anchorman.core
 
-sealed trait Block
+sealed trait Block extends Product with Serializable
 
 case object EmptyBlock extends Block
 

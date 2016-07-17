@@ -1,6 +1,6 @@
 package anchorman.core
 
-sealed trait Span
+sealed trait Span extends Product with Serializable
 
 case object EmptySpan extends Span
 

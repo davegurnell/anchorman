@@ -6,16 +6,20 @@ import anchorman.syntax._
 class ListIndentIntegrationSpec extends IntegrationSpec {
   def name = "listindent"
   def doc = document(
-    exampleTable("full width"),
+    para(image("http://placehold.it/900x100")),
+    exampleTable("A table"),
     ulist(
       item(
-        exampleTable("one indent"),
+        para(image("http://placehold.it/900x100")),
+        exampleTable("A table"),
         ulist(
           item(
-            exampleTable("two indents"),
+            para(image("http://placehold.it/900x100")),
+            exampleTable("A table"),
             ulist(
               item(
-                exampleTable("three indents")
+                para(image("http://placehold.it/900x100")),
+                exampleTable("A table")
               )
             )
           )

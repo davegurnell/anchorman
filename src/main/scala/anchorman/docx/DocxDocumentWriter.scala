@@ -119,12 +119,14 @@ class DocxDocumentWriter(val styleWriter: DocxStyleWriter) {
   def writeList(items: Seq[ListItem]): DocumentState[NodeSeq] =
     for {
       _   <- pushList
+      _   <- indent(listHangingIndent)
       ans <- items.foldLeft(emptyXml) { (accum, item) =>
                for {
                  a <- accum
                  b <- writeBlock(item.block)
                } yield a ++ b
              }
+      _   <- indent(-listHangingIndent)
       _   <- popList
     } yield ans
 
@@ -137,12 +139,14 @@ class DocxDocumentWriter(val styleWriter: DocxStyleWriter) {
 
     for {
       width      <- getAvailableWidth
+      left       <- getLeftIndent
       cellWidths <- getCellWidths(table, width)
       rowsXml    <- rows.toList.map(row => writeTableRow(row, cellWidths, style)).sequenceU.map(_.flatten)
     } yield {
       <w:tbl>
         <w:tblPr>
           <w:tblW w:w={width.dxa.toString} w:type="dxa"/>
+          <w:tblInd w:w={(left + table.style.cellMargin.left).dxa.toString} w:type="dxa"/>
           {styleWriter.writeTableStyle(style)}
         </w:tblPr>
         {rowsXml}
@@ -161,9 +165,11 @@ class DocxDocumentWriter(val styleWriter: DocxStyleWriter) {
       for {
         a <- accum
         w <- getAvailableWidth
-        _ <- setAvailableWidth(cellWidth - tableStyle.margin.left - tableStyle.margin.right - tableStyle.cellMargin.left - tableStyle.cellMargin.right)
+        l <- getLeftIndent
+        r <- getRightIndent
+        _ <- reindent(cellWidth - tableStyle.margin.left - tableStyle.margin.right - tableStyle.cellMargin.left - tableStyle.cellMargin.right, Dim.zero, Dim.zero)
         b <- writeBlockWithTrailingPara(cell.block)
-        _ <- setAvailableWidth(w)
+        _ <- reindent(w, l, r)
       } yield {
         a ++
         <w:tc>
@@ -292,6 +298,8 @@ object DocxDocumentWriter {
 
   case class DocumentSeed(
     availableWidth: Dim = Dims.defaultPageSize.width,
+    leftIndent: Dim = Dim.zero,
+    rightIndent: Dim = Dim.zero,
     media: MediaMap = Map.empty,
     nextMediaId: Int = 0,
     currListIds: List[Int] = Nil,
@@ -306,8 +314,29 @@ object DocxDocumentWriter {
   val getAvailableWidth: DocumentState[Dim] =
     State.inspect(_.availableWidth)
 
-  def setAvailableWidth(width: Dim): DocumentState[Unit] =
-    State.modify(_.copy(availableWidth = width))
+  val getLeftIndent: DocumentState[Dim] =
+    State.inspect(_.leftIndent)
+
+  val getRightIndent: DocumentState[Dim] =
+    State.inspect(_.rightIndent)
+
+  def indent(left: Dim = Dim.zero, right: Dim = Dim.zero): DocumentState[Unit] =
+    State.modify { state =>
+      state.copy(
+        availableWidth = state.availableWidth - left - right,
+        leftIndent     = state.leftIndent     + left,
+        rightIndent    = state.rightIndent    + right
+      )
+    }
+
+  def reindent(width: Dim, left: Dim = Dim.zero, right: Dim = Dim.zero): DocumentState[Unit] =
+    State.modify { state =>
+      state.copy(
+        availableWidth = width,
+        leftIndent     = left,
+        rightIndent    = right
+      )
+    }
 
   def getCellWidths(table: Table, availableWidth: Dim): DocumentState[Seq[Dim]] =
     State.pure {
@@ -333,9 +362,8 @@ object DocxDocumentWriter {
   val pushList: DocumentState[Unit] =
     State.modify { state =>
       state.copy(
-        availableWidth = state.availableWidth - listIndent - listHangingIndent,
-        currListIds = state.nextListId :: state.currListIds,
-        nextListId = state.nextListId + 1
+        currListIds    = state.nextListId :: state.currListIds,
+        nextListId     = state.nextListId + 1
       )
     }
 

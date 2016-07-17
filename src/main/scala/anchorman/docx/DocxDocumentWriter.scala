@@ -201,13 +201,25 @@ class DocxDocumentWriter(val styleWriter: DocxStyleWriter) {
         }
     }
 
+  val leadingSpaceRegex = "^\\s+\\S".r
+  val trailingSpaceRegex = "\\s$".r
+
+  val preserveSpace: NodeSeq =
+    <w:t xml:space="preserve"> </w:t>
+
   def writeText(text: String, style: TextStyle): DocumentState[NodeSeq] =
     State.pure {
+      val leadingSpace:  Boolean = leadingSpaceRegex.pattern.matcher(text).find
+      val trailingSpace: Boolean = trailingSpaceRegex.pattern.matcher(text).find
+
+      val prologue: NodeSeq = if(leadingSpace && !trailingSpace) preserveSpace else NodeSeq.Empty
+      val epilogue: NodeSeq = if(trailingSpace) preserveSpace else NodeSeq.Empty
+
       <w:r>
-        <w:rPr>
-          {styleWriter.writeTextStyle(style)}
-        </w:rPr>
+        <w:rPr>{styleWriter.writeTextStyle(style)}</w:rPr>
+        {prologue}
         <w:t>{text}</w:t>
+        {epilogue}
       </w:r>
     }
 

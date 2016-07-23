@@ -268,10 +268,10 @@ class DocxDocumentWriter(val styleWriter: DocxStyleWriter) {
         }
 
       case Some(PlainMediaFile(relId, filename, contentType, content)) =>
-        emptyXml
+        State.pure(<w:r><w:t></w:t></w:r> : NodeSeq)
 
       case None =>
-        emptyXml
+        State.pure(<w:r><w:t></w:t></w:r> : NodeSeq)
     }
 
   def writeBlockWithTrailingPara(block: Block): DocumentState[NodeSeq] =

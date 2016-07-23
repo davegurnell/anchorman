@@ -20,6 +20,10 @@ class ImagesIntegrationSpec extends IntegrationSpec {
       image("http://placehold.it/200x200"),
       image("http://placehold.it/200x200"),
       image("http://placehold.it/200x200")
+    ).align(TextAlign.Center),
+    para(
+      image("http://example.com/missing.png"),
+      image("http://example.com/missing.jpg")
     ).align(TextAlign.Center)
   )
 }

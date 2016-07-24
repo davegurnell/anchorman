@@ -1,6 +1,6 @@
 package anchorman.media
 
-sealed trait MediaFile {
+sealed abstract class MediaFile extends Product with Serializable {
   def relId: String
   def filename: String
   def contentType: String

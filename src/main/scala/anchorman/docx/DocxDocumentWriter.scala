@@ -286,7 +286,6 @@ class DocxDocumentWriter(val styleWriter: DocxStyleWriter) {
       case EmptyBlock       => false
       case BlockSeq(blocks) => blocks.lastOption.exists(blockEndsWithPara)
       case _: Para          => true
-      case _: Image         => false
       case _: UnorderedList => false
       case _: OrderedList   => false
       case _: Columns       => false

@@ -1,6 +1,6 @@
 package anchorman.core
 
-sealed trait Block extends Product with Serializable
+sealed abstract class Block extends Product with Serializable
 
 case object EmptyBlock extends Block
 
@@ -42,8 +42,7 @@ case class Table(
 
 case class BlockSeq(blocks: Seq[Block]) extends Block
 
-sealed trait ParaType
-
+sealed abstract class ParaType extends Product with Serializable
 object ParaType {
   case object Title    extends ParaType
   case object Heading1 extends ParaType
@@ -58,7 +57,7 @@ case class TableRow(cells: Seq[TableCell])
 
 case class TableCell(block: Block)
 
-sealed trait TableColumn
+sealed abstract class TableColumn extends Product with Serializable
 object TableColumn {
   case object Auto extends TableColumn
   case class Fixed(length: Dim) extends TableColumn

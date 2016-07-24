@@ -59,10 +59,14 @@ case class TableStyle(
 )
 
 object TableStyle {
-  val default = TableStyle()
+  val default    = TableStyle()
+  val borderless = default.copy(
+    borders     = Borders.none,
+    cellBorders = Borders.none
+  )
 }
 
-sealed trait TextAlign
+sealed abstract class TextAlign extends Product with Serializable
 object TextAlign {
   case object Left   extends TextAlign
   case object Center extends TextAlign
@@ -70,7 +74,7 @@ object TextAlign {
   case object Full   extends TextAlign
 }
 
-sealed trait VerticalAlign
+sealed abstract class VerticalAlign extends Product with Serializable
 object VerticalAlign {
   case object Top      extends VerticalAlign
   case object Center   extends VerticalAlign

@@ -1,6 +1,6 @@
 name         := "anchorman"
 organization := "com.davegurnell"
-version      := "0.2.0"
+version      := "0.2.1-SNAPSHOT"
 scalaVersion := "2.11.8"
 
 licenses += ("Apache-2.0", url("http://apache.org/licenses/LICENSE-2.0"))

@@ -1,10 +1,16 @@
-name := "anchorman"
-
+name         := "anchorman"
 organization := "com.davegurnell"
+version      := "0.2.0"
+scalaVersion := "2.11.8"
 
-scalaVersion in ThisBuild := "2.11.8"
+licenses += ("Apache-2.0", url("http://apache.org/licenses/LICENSE-2.0"))
 
-resolvers += "Awesome Utilities" at "https://dl.bintray.com/davegurnell/maven"
+scalacOptions ++= Seq(
+  "-unchecked",
+  "-deprecation",
+  "-feature",
+  "-Xfatal-warnings"
+)
 
 libraryDependencies ++= Seq(
   "com.davegurnell"        %% "bulletin"          % "0.6.0",
@@ -21,16 +27,24 @@ libraryDependencies ++= Seq(
   "org.typelevel"          %% "cats"              % "0.6.0"
 )
 
-scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature", "-Xfatal-warnings")
-
 configs(IntegrationTest)
 
 Defaults.itSettings
 
-// Bintray:
+sonatypeProfileName := "com.davegurnell"
 
-licenses += ("Apache-2.0", url("http://apache.org/licenses/LICENSE-2.0"))
-
-bintrayPackageLabels in bintray := Seq("scala", "docx", "html", "pdf", "utility")
-
-bintrayRepository in bintray := "maven"
+pomExtra in Global := {
+  <url>https://github.com/davegurnell/anchorman</url>
+  <scm>
+    <connection>scm:git:github.com/davegurnell/anchorman</connection>
+    <developerConnection>scm:git:git@github.com:davegurnell/anchorman</developerConnection>
+    <url>github.com/davegurnell/anchorman</url>
+  </scm>
+  <developers>
+    <developer>
+      <id>davegurnell</id>
+      <name>Dave Gurnell</name>
+      <url>http://twitter.com/davegurnell</url>
+    </developer>
+  </developers>
+}

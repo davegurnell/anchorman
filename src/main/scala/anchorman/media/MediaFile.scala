@@ -1,6 +1,7 @@
 package anchorman.media
 
 sealed abstract class MediaFile extends Product with Serializable {
+  def url: String
   def relId: String
   def filename: String
   def contentType: String
@@ -9,6 +10,7 @@ sealed abstract class MediaFile extends Product with Serializable {
 }
 
 case class PlainMediaFile(
+  url: String,
   relId: String,
   filename: String,
   contentType: String,
@@ -18,10 +20,11 @@ case class PlainMediaFile(
     false
 
   override def toString: String =
-    s"PlainMediaFile($relId,$filename,$contentType,<content>)"
+    s"PlainMediaFile($url,$relId,$filename,$contentType,<content>)"
 }
 
 case class ImageMediaFile(
+  url: String,
   relId: String,
   filename: String,
   contentType: String,
@@ -33,5 +36,5 @@ case class ImageMediaFile(
     true
 
   override def toString: String =
-    s"ImageMediaFile($relId,$filename,$contentType,$width,$height,<content>)"
+    s"ImageMediaFile($url,$relId,$filename,$contentType,$width,$height,<content>)"
 }

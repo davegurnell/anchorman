@@ -9,7 +9,7 @@ import scala.xml.NodeSeq
 class DocxStyleWriter {
   val defaultParagraphSpacing = 6.pt
 
-  def writeStylesXml(doc: Document, media: MediaMap): NodeSeq = {
+  def writeStylesXml(doc: Document, media: Seq[MediaFile]): NodeSeq = {
     val Document(
       block,
       pageStyle,
@@ -92,7 +92,7 @@ class DocxStyleWriter {
   }
 
   def writeParaStyle(style: ParaStyle): NodeSeq = {
-    val ParaStyle(textAlign, verticalAlign, spacing) = style
+    val ParaStyle(textAlign, verticalAlign, spacing, shading) = style
 
     val textAlignStyle: NodeSeq =
       textAlign match {
@@ -121,7 +121,16 @@ class DocxStyleWriter {
           NodeSeq.Empty
       }
 
-    textAlignStyle ++ spacingStyle
+    val shadingStyle: NodeSeq =
+      shading match {
+        case Some(Color(hex)) =>
+          <w:shd w:val="clear" w:color="auto" w:fill={hex.toUpperCase} />
+
+        case None =>
+          NodeSeq.Empty
+      }
+
+    textAlignStyle ++ spacingStyle ++ shadingStyle
   }
 
   def writeTableStyle(style: TableStyle) = {

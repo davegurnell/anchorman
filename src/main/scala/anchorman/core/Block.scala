@@ -15,7 +15,6 @@ object Para {
 }
 
 case class Columns(columns: Seq[Block]) extends Block
-
 case class UnorderedList(items: Seq[ListItem]) extends Block
 case class OrderedList(items: Seq[ListItem]) extends Block
 

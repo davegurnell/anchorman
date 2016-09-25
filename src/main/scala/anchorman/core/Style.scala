@@ -45,10 +45,10 @@ case class TextStyle(
 
 object TextStyle {
   val empty = TextStyle()
-  val default  = TextStyle(size = Some(10.pt), bold = Some(false), italic = Some(false), underline = Some(false))
-  val heading1 = TextStyle(size = Some(20.pt), bold = Some(true),  italic = Some(false), underline = Some(false))
-  val heading2 = TextStyle(size = Some(16.pt), bold = Some(true),  italic = Some(false), underline = Some(false))
-  val heading3 = TextStyle(size = Some(12.pt), bold = Some(true),  italic = Some(false), underline = Some(false))
+  val default  = TextStyle(size = Some(12.pt), bold = Some(false), italic = Some(false), underline = Some(false))
+  val heading1 = TextStyle(size = Some(24.pt), bold = Some(true),  italic = Some(false), underline = Some(false))
+  val heading2 = TextStyle(size = Some(20.pt), bold = Some(true),  italic = Some(false), underline = Some(false))
+  val heading3 = TextStyle(size = Some(16.pt), bold = Some(true),  italic = Some(false), underline = Some(false))
 }
 
 case class TableStyle(

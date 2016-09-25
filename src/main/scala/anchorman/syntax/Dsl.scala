@@ -46,8 +46,8 @@ trait Dsl {
   def cell[A](blocks: A*)(implicit promoter: BlockPromoter[A]): TableCell =
     TableCell(BlockSeq(blocks.map(promoter.apply)))
 
-  def image(url: String): Image =
-    Image(url)
+  def image(urls: String*): Image =
+    Image(urls)
 
   def columns[A](blocks: A*)(implicit promoter: BlockPromoter[A]): Columns =
     Columns(blocks.map(promoter.apply))

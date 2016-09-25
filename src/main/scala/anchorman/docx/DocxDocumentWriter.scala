@@ -13,12 +13,12 @@ import scala.xml.NodeSeq
 class DocxDocumentWriter(val styleWriter: DocxStyleWriter) {
   import DocxDocumentWriter._
 
-  def writeDocumentXml(doc: Document, media: MediaMap): NodeSeq = {
+  def writeDocumentXml(doc: Document, media: Seq[MediaFile]): NodeSeq = {
     val Document(block, pageStyle, _, _, _, _) = doc
 
     val seed = DocumentSeed(
       availableWidth = pageStyle.availableWidth,
-      media          = media
+      media          = media.map(file => file.url -> file).toMap
     )
 
     val content = writeBlock(block).runA(seed).value
@@ -189,8 +189,8 @@ class DocxDocumentWriter(val styleWriter: DocxStyleWriter) {
       case Text(text, style) =>
         writeText(text, style)
 
-      case Image(url) =>
-        writeImage(url)
+      case image: Image =>
+        writeImage(image.url)
 
       case SpanSeq(spans) =>
         spans.foldLeft(emptyXml) { (accum, span) =>
@@ -225,7 +225,7 @@ class DocxDocumentWriter(val styleWriter: DocxStyleWriter) {
 
   def writeImage(url: String): DocumentState[NodeSeq] =
     getMediaFile(url) flatMap {
-      case Some(ImageMediaFile(relId, filename, contentType, pixelWidth, pixelHeight, content)) =>
+      case Some(ImageMediaFile(url, relId, filename, contentType, pixelWidth, pixelHeight, content)) =>
         for {
           index <- getMediaIndex
           width <- getAvailableWidth.map(_ min (1.in * pixelWidth / 150))
@@ -237,7 +237,7 @@ class DocxDocumentWriter(val styleWriter: DocxStyleWriter) {
                 <wp:extent cx={width.emu.toString} cy={height.emu.toString}/> <!-- TODO: Fix up -->
                 <wp:docPr id="1" name={filename}/> <!-- TODO: Fix up -->
                 <a:graphic>
-                  <a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture">
+                  <a:graphicData uri={"http://schemas.openxmlformats.org/drawingml/2006/picture"}>
                     <pic:pic>
                       <pic:nvPicPr>
                         <pic:cNvPr id={index.toString} name={filename} />
@@ -267,7 +267,7 @@ class DocxDocumentWriter(val styleWriter: DocxStyleWriter) {
           </w:r> : NodeSeq
         }
 
-      case Some(PlainMediaFile(relId, filename, contentType, content)) =>
+      case Some(PlainMediaFile(url, relId, filename, contentType, content)) =>
         State.pure(<w:r><w:t></w:t></w:r> : NodeSeq)
 
       case None =>

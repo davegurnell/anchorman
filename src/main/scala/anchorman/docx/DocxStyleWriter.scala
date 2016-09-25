@@ -9,7 +9,7 @@ import scala.xml.NodeSeq
 class DocxStyleWriter {
   val defaultParagraphSpacing = 6.pt
 
-  def writeStylesXml(doc: Document, media: MediaMap): NodeSeq = {
+  def writeStylesXml(doc: Document, media: Seq[MediaFile]): NodeSeq = {
     val Document(
       block,
       pageStyle,

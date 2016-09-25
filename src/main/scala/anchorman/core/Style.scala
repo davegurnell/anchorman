@@ -25,7 +25,8 @@ object ParaAndTextStyle {
 case class ParaStyle(
   textAlign: Option[TextAlign] = None,
   verticalAlign: Option[VerticalAlign] = None,
-  spacing: Option[ParaSpacing] = None
+  spacing: Option[ParaSpacing] = None,
+  shading: Option[Color] = None
 )
 
 object ParaStyle {
@@ -95,3 +96,5 @@ object Borders {
   val none = Borders(top = false, right = false, bottom = false, left = false)
   val all  = Borders(top =  true, right =  true, bottom =  true, left =  true)
 }
+
+case class Color(hex: String)

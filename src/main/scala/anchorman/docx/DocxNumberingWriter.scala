@@ -3,9 +3,9 @@ package anchorman.docx
 import anchorman.core._
 import anchorman.syntax._
 import anchorman.media._
-import cats.data.State
 import cats._
-import cats.std.all._
+import cats.data.State
+import cats.instances.all._
 import cats.syntax.all._
 
 import scala.xml.NodeSeq

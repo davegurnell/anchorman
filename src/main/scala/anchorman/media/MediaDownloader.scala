@@ -56,7 +56,9 @@ class MediaDownloader(val wsClient: WSClient) {
     wsClient.url(url).withFollowRedirects(true).get().map { response =>
       import WSClientImplicits._
 
-      readImage(response.bodyAsBytes) match {
+      val bytes = response.bodyAsBytes.toArray
+
+      readImage(bytes) match {
         case Some(image) =>
           ImageMediaFile(
             url         = url,
@@ -65,7 +67,7 @@ class MediaDownloader(val wsClient: WSClient) {
             contentType = response.contentType,
             width       = image.getWidth,
             height      = image.getHeight,
-            content     = response.bodyAsBytes
+            content     = bytes
           )
         case None =>
           PlainMediaFile(
@@ -73,7 +75,7 @@ class MediaDownloader(val wsClient: WSClient) {
             relId       = mediaRelId(url),
             filename    = generateFilename(response.contentType), // response.filename(url),
             contentType = response.contentType,
-            content     = response.bodyAsBytes
+            content     = bytes
           )
       }
     }

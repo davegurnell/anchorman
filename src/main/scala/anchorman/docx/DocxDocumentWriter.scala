@@ -5,7 +5,7 @@ import anchorman.syntax._
 import anchorman.media._
 import cats._
 import cats.data.State
-import cats.std.all._
+import cats.instances.all._
 import cats.syntax.all._
 
 import scala.xml.NodeSeq

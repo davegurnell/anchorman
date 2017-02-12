@@ -31,7 +31,7 @@ class DocxDocumentWriterSpec extends FreeSpec with Matchers {
     "write span seq" in {
       val actual   = writer.writeSpan(SpanSeq(List(Text("Hello "), Text("world")))).runA(seed).value
       val expected =
-        <w:r><w:rPr></w:rPr><w:t>Hello </w:t></w:r> ++
+        <w:r><w:rPr></w:rPr><w:t>Hello </w:t><w:t xml:space="preserve"> </w:t></w:r> ++
         <w:r><w:rPr></w:rPr><w:t>world</w:t></w:r>
 
       actual should ===(expected)
@@ -140,6 +140,7 @@ class DocxDocumentWriterSpec extends FreeSpec with Matchers {
         <w:tbl>
           <w:tblPr>
             <w:tblW w:w="1000" w:type="dxa"/>
+            <w:tblInd w:w="120" w:type="dxa"/>
             <w:tblBorders>
               <w:top w:val="single" w:sz="1"/>
               <w:end w:val="single" w:sz="1"/>

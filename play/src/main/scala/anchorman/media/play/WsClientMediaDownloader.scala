@@ -1,4 +1,5 @@
 package anchorman.media
+package play
 
 import java.awt.{Image => AwtImage, Graphics2D}
 import java.awt.image.{BufferedImage, ImageObserver}
@@ -8,36 +9,12 @@ import javax.imageio.ImageIO
 import javax.xml.bind.DatatypeConverter
 
 import anchorman.core._
-import play.api.libs.ws.WSClient
+import _root_.play.api.libs.ws.WSClient
 
 import scala.concurrent.{ExecutionContext => EC, _}
 import scala.util.Try
 
-class MediaDownloader(val wsClient: WSClient) {
-  def images(block: Block): Seq[Image] =
-    block match {
-      case EmptyBlock           => Seq.empty
-      case Para(span, _, _)     => images(span)
-      case UnorderedList(items) => items.flatMap(item => images(item.block))
-      case OrderedList(items)   => items.flatMap(item => images(item.block))
-      case Columns(blocks)      => blocks.flatMap(images)
-      case Table(rows, _, _)    =>
-        for {
-          row  <- rows
-          cell <- row.cells
-          url  <- images(cell.block)
-        } yield url
-      case BlockSeq(blocks)     => blocks.flatMap(images)
-    }
-
-  def images(span: Span): Seq[Image] =
-    span match {
-      case EmptySpan            => Seq.empty
-      case _ : Text             => Seq.empty
-      case i : Image            => Seq(i)
-      case SpanSeq(spans)       => spans.flatMap(images)
-    }
-
+class WsClientMediaDownloader(val wsClient: WSClient) extends MediaDownloader {
   def downloadMediaFiles(block: Block)(implicit ec: EC): Future[Seq[MediaFile]] =
     Future.sequence(images(block).map { image =>
       downloadMediaFiles(image.sourceUrls).map { files =>

@@ -4,7 +4,7 @@ import anchorman.core._
 import anchorman.syntax._
 
 class ImagesIntegrationSpec extends IntegrationSpec {
-  def name = "images"
+  def name = "play-images"
   def doc = document(
     para(
       image("http://placehold.it/100x100", "http://placehold.it/10x10"),

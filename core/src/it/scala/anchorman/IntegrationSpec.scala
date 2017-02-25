@@ -5,8 +5,8 @@ import java.io.File
 import anchorman.core._
 import anchorman.docx._
 import anchorman.media._
+import anchorman.media.noop._
 import org.scalatest._
-import play.api.libs.ws.ning.NingWSClient
 
 import scala.concurrent._
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -26,15 +26,10 @@ trait IntegrationSpec extends FreeSpec {
     val file = outputFile("docx")
 
     s"writes ${file.getPath}" in {
-      val wsClient = NingWSClient()
-      val mediaDownloader = new MediaDownloader(wsClient)
+      val mediaDownloader = new NoopMediaDownloader()
       val docxWriter = new DocxWriter(mediaDownloader)
-      try {
-        directory.mkdirs()
-        Await.result(docxWriter.write(doc, file), 5.seconds)
-      } finally {
-        wsClient.close()
-      }
+      directory.mkdirs()
+      Await.result(docxWriter.write(doc, file), 5.seconds)
     }
   }
 }

@@ -144,7 +144,7 @@ class DocxNumWriter {
     }
 
   def writeNumsForBlocks(blocks: Seq[Block]): NumState[NodeSeq] =
-    blocks.toList.map(writeNumsForBlock).sequenceU.map(_.flatten)
+    blocks.toList.traverse(writeNumsForBlock).map(_.flatten)
 
   def pushAndWriteNum(abstractListId: Int): NumState[NodeSeq] =
     State { seed =>

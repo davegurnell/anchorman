@@ -146,7 +146,7 @@ class DocxDocumentWriter(val styleWriter: DocxStyleWriter) {
       width      <- getAvailableWidth
       left       <- getLeftIndent
       cellWidths <- getCellWidths(table, width)
-      rowsXml    <- rows.toList.map(row => writeTableRow(row, cellWidths, style)).sequenceU.map(_.flatten)
+      rowsXml    <- rows.toList.traverse(row => writeTableRow(row, cellWidths, style)).map(_.flatten)
     } yield {
       <w:tbl>
         <w:tblPr>

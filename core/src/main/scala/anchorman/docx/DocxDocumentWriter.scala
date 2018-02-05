@@ -5,7 +5,7 @@ import anchorman.syntax._
 import anchorman.media._
 import cats._
 import cats.data.State
-import cats.std.all._
+import cats.instances.all._
 import cats.syntax.all._
 
 import scala.xml.NodeSeq
@@ -21,32 +21,37 @@ class DocxDocumentWriter(val styleWriter: DocxStyleWriter) {
       media          = media.map(file => file.url -> file).toMap
     )
 
-    val content = writeBlock(block).runA(seed).value
+    val state = for {
+      content   <- writeBlock(block)
+      pageStyle <- writePageStyle(pageStyle)
+    } yield {
+      <w:document xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math"
+                  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                  xmlns:mo="http://schemas.microsoft.com/office/mac/office/2008/main"
+                  xmlns:mv="urn:schemas-microsoft-com:mac:vml"
+                  xmlns:o="urn:schemas-microsoft-com:office:office"
+                  xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"
+                  xmlns:v="urn:schemas-microsoft-com:vml"
+                  xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"
+                  xmlns:w10="urn:schemas-microsoft-com:office:word"
+                  xmlns:w14="http://schemas.microsoft.com/office/word/2010/wordml"
+                  xmlns:wne="http://schemas.microsoft.com/office/word/2006/wordml"
+                  xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"
+                  xmlns:wp14="http://schemas.microsoft.com/office/word/2010/wordprocessingDrawing"
+                  xmlns:wpc="http://schemas.microsoft.com/office/word/2010/wordprocessingCanvas"
+                  xmlns:wpg="http://schemas.microsoft.com/office/word/2010/wordprocessingGroup"
+                  xmlns:wpi="http://schemas.microsoft.com/office/word/2010/wordprocessingInk"
+                  xmlns:wps="http://schemas.microsoft.com/office/word/2010/wordprocessingShape"
+                  xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"
+                  xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">
+        <w:body>
+          {content}
+          <w:sectPr>{pageStyle}</w:sectPr>
+        </w:body>
+      </w:document>
+    }
 
-    <w:document xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math"
-                xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-                xmlns:mo="http://schemas.microsoft.com/office/mac/office/2008/main"
-                xmlns:mv="urn:schemas-microsoft-com:mac:vml"
-                xmlns:o="urn:schemas-microsoft-com:office:office"
-                xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"
-                xmlns:v="urn:schemas-microsoft-com:vml"
-                xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"
-                xmlns:w10="urn:schemas-microsoft-com:office:word"
-                xmlns:w14="http://schemas.microsoft.com/office/word/2010/wordml"
-                xmlns:wne="http://schemas.microsoft.com/office/word/2006/wordml"
-                xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"
-                xmlns:wp14="http://schemas.microsoft.com/office/word/2010/wordprocessingDrawing"
-                xmlns:wpc="http://schemas.microsoft.com/office/word/2010/wordprocessingCanvas"
-                xmlns:wpg="http://schemas.microsoft.com/office/word/2010/wordprocessingGroup"
-                xmlns:wpi="http://schemas.microsoft.com/office/word/2010/wordprocessingInk"
-                xmlns:wps="http://schemas.microsoft.com/office/word/2010/wordprocessingShape"
-                xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"
-                xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">
-      <w:body>
-        {content}
-        <w:sectPr>{writePageStyle(pageStyle)}</w:sectPr>
-      </w:body>
-    </w:document>
+    state.runA(seed).value
   }
 
   def writeBlock(block: Block): DocumentState[NodeSeq] =
@@ -141,7 +146,7 @@ class DocxDocumentWriter(val styleWriter: DocxStyleWriter) {
       width      <- getAvailableWidth
       left       <- getLeftIndent
       cellWidths <- getCellWidths(table, width)
-      rowsXml    <- rows.toList.map(row => writeTableRow(row, cellWidths, style)).sequenceU.map(_.flatten)
+      rowsXml    <- rows.toList.traverse(row => writeTableRow(row, cellWidths, style)).map(_.flatten)
     } yield {
       <w:tbl>
         <w:tblPr>

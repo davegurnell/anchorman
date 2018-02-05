@@ -40,7 +40,7 @@ class WsClientMediaDownloader(val wsClient: WSClient) extends MediaDownloader {
           ImageMediaFile(
             url         = url,
             relId       = mediaRelId(url),
-            filename    = generateFilename(response.contentType), // response.filename(url),
+            filename    = generateFilename(response.contentType),
             contentType = response.contentType,
             width       = image.getWidth,
             height      = image.getHeight,
@@ -50,7 +50,7 @@ class WsClientMediaDownloader(val wsClient: WSClient) extends MediaDownloader {
           PlainMediaFile(
             url         = url,
             relId       = mediaRelId(url),
-            filename    = generateFilename(response.contentType), // response.filename(url),
+            filename    = generateFilename(response.contentType),
             contentType = response.contentType,
             content     = bytes
           )
@@ -89,7 +89,7 @@ class WsClientMediaDownloader(val wsClient: WSClient) extends MediaDownloader {
     ImageMediaFile(
       url         = outUrl,
       relId       = outMediaRelId,
-      filename    = outFilename, // response.filename(url),
+      filename    = outFilename,
       contentType = outContentType,
       width       = outWidth,
       height      = outHeight,

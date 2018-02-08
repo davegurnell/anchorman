@@ -13,7 +13,7 @@ import scala.xml.NodeSeq
 class DocxDocumentWriter(val styleWriter: DocxStyleWriter) {
   import DocxDocumentWriter._
 
-  def writeDocumentXml(doc: Document, media: List[MediaFile]): NodeSeq = {
+  def writeDocumentXml(doc: Document, media: List[ImageFile]): NodeSeq = {
     val Document(block, pageStyle, _, _, _, _) = doc
 
     val seed = DocumentSeed(
@@ -229,8 +229,8 @@ class DocxDocumentWriter(val styleWriter: DocxStyleWriter) {
     }
 
   def writeImage(url: String): DocumentState[NodeSeq] =
-    getMediaFile(url) flatMap {
-      case Some(ImageMediaFile(url, relId, filename, contentType, pixelWidth, pixelHeight, content)) =>
+    getImageFile(url) flatMap {
+      case Some(ImageFile(url, relId, filename, contentType, pixelWidth, pixelHeight, content)) =>
         for {
           index <- getMediaIndex
           width <- getAvailableWidth.map(_ min (1.in * pixelWidth / 150))
@@ -271,9 +271,6 @@ class DocxDocumentWriter(val styleWriter: DocxStyleWriter) {
             </w:drawing>
           </w:r> : NodeSeq
         }
-
-      case Some(PlainMediaFile(url, relId, filename, contentType, content)) =>
-        State.pure(<w:r><w:t></w:t></w:r> : NodeSeq)
 
       case None =>
         State.pure(<w:r><w:t></w:t></w:r> : NodeSeq)
@@ -316,7 +313,7 @@ object DocxDocumentWriter {
     availableWidth: Dim = Dims.defaultPageSize.width,
     leftIndent: Dim = Dim.zero,
     rightIndent: Dim = Dim.zero,
-    media: Map[String, MediaFile] = Map.empty,
+    media: Map[String, ImageFile] = Map.empty,
     nextMediaId: Int = 0,
     currListIds: List[Int] = Nil,
     nextListId: Int = 1
@@ -404,6 +401,6 @@ object DocxDocumentWriter {
   val getMediaIndex: DocumentState[Int] =
     State.apply(seed => (seed.copy(nextMediaId = seed.nextMediaId + 1), seed.nextMediaId))
 
-  def getMediaFile(url: String): DocumentState[Option[MediaFile]] =
+  def getImageFile(url: String): DocumentState[Option[ImageFile]] =
     State.inspect(_.media.get(url))
 }

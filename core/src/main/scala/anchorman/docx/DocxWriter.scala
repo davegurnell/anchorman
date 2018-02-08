@@ -16,9 +16,9 @@ class DocxWriter(val mediaDownloader: MediaDownloader) extends DocumentWriter {
   val documentWriter  = new DocxDocumentWriter(styleWriter)
 
   def write(doc: Document, stream: OutputStream)(implicit ec: EC): Future[Unit] =
-    mediaDownloader.downloadMediaFiles(doc.block).map(writeMedia(doc, stream))
+    mediaDownloader.downloadImages(doc.block).map(writeMedia(doc, stream))
 
-  private def writeMedia(doc: Document, stream: OutputStream)(media: List[MediaFile]): Unit = {
+  private def writeMedia(doc: Document, stream: OutputStream)(media: List[ImageFile]): Unit = {
     val zip = new ZipOutputStream(stream)
     try {
       import ZipImplicits._
@@ -30,7 +30,7 @@ class DocxWriter(val mediaDownloader: MediaDownloader) extends DocumentWriter {
       zip.writeXmlFile("word/numbering.xml",           numberingWriter.writeNumberingXml(doc))
       zip.writeXmlFile("word/styles.xml",              styleWriter.writeStylesXml(doc, media))
 
-      media.foreach(file => zip.writeMediaFile("word/media/" + file.filename, file))
+      media.foreach(file => zip.writeImageFile("word/media/" + file.filename, file))
     } finally {
       zip.close()
     }

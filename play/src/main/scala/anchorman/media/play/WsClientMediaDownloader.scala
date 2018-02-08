@@ -17,28 +17,25 @@ import scala.concurrent.{ExecutionContext => EC, _}
 import scala.util.Try
 
 class WsClientMediaDownloader(val wsClient: WSClient) extends MediaDownloader {
-  def downloadMediaFiles(block: Block)(implicit ec: EC): Future[List[MediaFile]] = {
+  def downloadImages(block: Block)(implicit ec: EC): Future[List[ImageFile]] = {
     val images: List[Image] =
       this.images(block)
 
     val urls: List[String] =
       images.flatMap(_.sourceUrls.toList).distinct
 
-    val media: Future[List[ImageMediaFile]] =
-      downloadImages(urls)
-
-    media.map(superimposeAll(images))
+    downloadImages(urls).map(superimposeAll(images))
   }
 
-  def downloadImages(urls: List[String])(implicit ec: EC): Future[List[ImageMediaFile]] =
+  private[media] def downloadImages(urls: List[String])(implicit ec: EC): Future[List[ImageFile]] =
     urls.flatTraverse(url => downloadImage(url).map(_.toList))
 
-  def downloadImage(url: String)(implicit ec: EC): Future[Option[ImageMediaFile]] =
+  private[media] def downloadImage(url: String)(implicit ec: EC): Future[Option[ImageFile]] =
     download(url).map { response =>
       val bytes = response.bodyAsBytes.toArray
 
       readImage(url, bytes).map { image =>
-        ImageMediaFile(
+        ImageFile(
           url         = url,
           relId       = mediaRelId(url),
           filename    = generateFilename(response.contentType),
@@ -50,7 +47,7 @@ class WsClientMediaDownloader(val wsClient: WSClient) extends MediaDownloader {
       }
     }
 
-  def superimposeAll(images: List[Image])(media: List[ImageMediaFile])(implicit ec: EC): List[ImageMediaFile] = {
+  private[media] def superimposeAll(images: List[Image])(media: List[ImageFile])(implicit ec: EC): List[ImageFile] = {
     val mediaMap = media.map(file => file.url -> file).toMap
     val imageMap = images.map(img => img.url -> img).toMap
 
@@ -65,14 +62,13 @@ class WsClientMediaDownloader(val wsClient: WSClient) extends MediaDownloader {
     }
   }
 
-
-  def superimpose(files: List[ImageMediaFile])(implicit ec: EC): Option[ImageMediaFile] =
+  private[media] def superimpose(files: List[ImageFile])(implicit ec: EC): Option[ImageFile] =
     files match {
       case Nil          => None
       case head :: tail => Some(superimpose(NonEmptyList(head, tail)))
     }
 
-  def superimpose(files: NonEmptyList[ImageMediaFile])(implicit ec: EC): ImageMediaFile = {
+  private[media] def superimpose(files: NonEmptyList[ImageFile])(implicit ec: EC): ImageFile = {
     val filesList = files.toList
 
     val outUrl          = Image.url(files.map(_.url))
@@ -103,7 +99,7 @@ class WsClientMediaDownloader(val wsClient: WSClient) extends MediaDownloader {
       buffer.toByteArray
     }
 
-    ImageMediaFile(
+    ImageFile(
       url         = outUrl,
       relId       = outMediaRelId,
       filename    = outFilename,

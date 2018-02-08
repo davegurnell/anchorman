@@ -5,7 +5,7 @@ import anchorman.core._
 import scala.concurrent.{ExecutionContext => EC, _}
 
 trait MediaDownloader {
-  def downloadMediaFiles(block: Block)(implicit ec: EC): Future[List[MediaFile]]
+  def downloadImages(block: Block)(implicit ec: EC): Future[List[ImageFile]]
 
   def images(block: Block): List[Image] =
     block match {

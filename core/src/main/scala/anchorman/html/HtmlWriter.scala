@@ -6,15 +6,10 @@ import unindent._
 import scala.concurrent.{ExecutionContext => EC, _}
 
 object HtmlWriter extends DocumentWriter {
-  def write(doc: Document, stream: OutputStream)(implicit ec: EC): Future[Unit] =
-    Future.successful {
-      val writer = new OutputStreamWriter(stream)
-      try {
-        writer.write(writeDocument(doc))
-      } finally {
-        writer.close()
-      }
-    }
+  def write(doc: Document, stream: OutputStream)(implicit ec: EC): Future[Unit] = {
+    val writer = new OutputStreamWriter(stream)
+    Future(try writer.write(writeDocument(doc)) finally writer.close())
+  }
 
   def writeDocument(doc: Document): String = {
     val Document(block, _, _, _, _, _) = doc
@@ -53,7 +48,7 @@ object HtmlWriter extends DocumentWriter {
       case Para(span, ParaType.Default, _)  => i"""<p>${writeSpan(span)}</p>"""
       case OrderedList(items)               => i"""<ol>${items.map(writeListItem).mkString}</ol>"""
       case UnorderedList(items)             => i"""<ul>${items.map(writeListItem).mkString}</ul>"""
-      case Columns(columns)                 => writeBlock(Table(Seq(TableRow(columns.map(TableCell(_))))))
+      case Columns(columns)                 => writeBlock(Table(List(TableRow(columns.map(TableCell(_))))))
       case table @ Table(rows, _, _) =>
         i"""
         <table style="width: 100%; border: 1px solid black">

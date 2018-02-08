@@ -13,7 +13,7 @@ import scala.xml.NodeSeq
 class DocxDocumentWriter(val styleWriter: DocxStyleWriter) {
   import DocxDocumentWriter._
 
-  def writeDocumentXml(doc: Document, media: Seq[MediaFile]): NodeSeq = {
+  def writeDocumentXml(doc: Document, media: List[MediaFile]): NodeSeq = {
     val Document(block, pageStyle, _, _, _, _) = doc
 
     val seed = DocumentSeed(
@@ -121,7 +121,7 @@ class DocxDocumentWriter(val styleWriter: DocxStyleWriter) {
       </w:p>
     }
 
-  def writeList(items: Seq[ListItem]): DocumentState[NodeSeq] =
+  def writeList(items: List[ListItem]): DocumentState[NodeSeq] =
     for {
       _   <- pushList
       _   <- indent(listHangingIndent)
@@ -135,8 +135,8 @@ class DocxDocumentWriter(val styleWriter: DocxStyleWriter) {
       _   <- popList
     } yield ans
 
-  def writeColumns(columns: Seq[Block]): DocumentState[NodeSeq] =
-    writeTable(Table(Seq(TableRow(columns.map(TableCell(_))))))
+  def writeColumns(columns: List[Block]): DocumentState[NodeSeq] =
+    writeTable(Table(List(TableRow(columns.map(TableCell.apply)))))
 
   def writeTable(table: Table): DocumentState[NodeSeq] = {
     val Table(rows, _, style) = table
@@ -316,7 +316,7 @@ object DocxDocumentWriter {
     availableWidth: Dim = Dims.defaultPageSize.width,
     leftIndent: Dim = Dim.zero,
     rightIndent: Dim = Dim.zero,
-    media: MediaMap = Map.empty,
+    media: Map[String, MediaFile] = Map.empty,
     nextMediaId: Int = 0,
     currListIds: List[Int] = Nil,
     nextListId: Int = 1

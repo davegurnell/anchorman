@@ -2,26 +2,28 @@ package anchorman.core
 
 import java.net.URLEncoder.{encode => urlEncode}
 
+import cats.data.NonEmptyList
+
 sealed abstract class Span extends Product with Serializable
 
 case object EmptySpan extends Span
 
 case class Text(text: String, style: TextStyle = TextStyle.empty) extends Span
 
-case class Image(sourceUrls: Seq[String]) extends Span {
-  def url = Image.url(sourceUrls)
+case class Image(sourceUrls: NonEmptyList[String]) extends Span {
+  def url: String =
+    Image.url(sourceUrls)
 }
 
 object Image {
-  def apply(url: String): Image =
-    Image(List(url))
+  def apply(url: String, urls: String*): Image =
+    Image(NonEmptyList(url, urls.toList))
 
-  def url(sourceUrls: Seq[String]): String =
+  def url(sourceUrls: NonEmptyList[String]): String =
     sourceUrls match {
-      case Seq()    => ???
-      case Seq(url) => url
-      case urls     => s"superimpose:${sourceUrls.map(urlEncode(_, "utf-8")).mkString(":")}"
+      case NonEmptyList(head, Nil)  => head
+      case NonEmptyList(head, tail) => s"superimpose:${(head :: tail).map(urlEncode(_, "utf-8")).mkString(":")}"
     }
 }
 
-case class SpanSeq(spans: Seq[Span]) extends Span
+case class SpanSeq(spans: List[Span]) extends Span

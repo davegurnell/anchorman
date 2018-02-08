@@ -5,6 +5,6 @@ import anchorman.core._
 import scala.concurrent.{ExecutionContext => EC, _}
 
 class NoopMediaDownloader extends MediaDownloader {
-  def downloadMediaFiles(block: Block)(implicit ec: EC): Future[Seq[MediaFile]] =
-    Future.successful(Seq.empty)
+  def downloadImages(block: Block)(implicit ec: EC): Future[List[ImageFile]] =
+    Future.successful(List.empty[ImageFile])
 }

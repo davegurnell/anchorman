@@ -1,6 +1,6 @@
 package anchorman.docx
 
-import anchorman.media.MediaFile
+import anchorman.media.ImageFile
 
 import java.io.OutputStreamWriter
 import java.util.zip.{ZipEntry, ZipOutputStream}
@@ -17,7 +17,7 @@ object ZipImplicits {
       finally writer.flush()
     }
 
-    def writeMediaFile(path: String, file: MediaFile): Unit = {
+    def writeImageFile(path: String, file: ImageFile): Unit = {
       out.putNextEntry(new ZipEntry(path))
       try out.write(file.content)
       finally out.flush()

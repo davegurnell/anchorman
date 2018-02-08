@@ -20,9 +20,9 @@ trait IntegrationSpec extends FreeSpec {
     new File("target/it")
 
   def outputFile(extension: String): File =
-    new File(directory, s"${name}.${extension}")
+    new File(directory, s"$name.$extension")
 
-  s"${name} integration spec" - {
+  s"$name integration spec" - {
     val file = outputFile("docx")
 
     s"writes ${file.getPath}" in {

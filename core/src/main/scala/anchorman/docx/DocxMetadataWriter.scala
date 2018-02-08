@@ -41,7 +41,7 @@ class DocxMetadataWriter {
       <Relationship Id={documentRelId} Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>
     </Relationships>
 
-  def writeDocumentRels(doc: Document, media: Seq[MediaFile]): NodeSeq = {
+  def writeDocumentRels(doc: Document, media: Seq[ImageFile]): NodeSeq = {
     <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
       <Relationship Id={numberingRelId} Target="numbering.xml" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/numbering"/>
       <Relationship Id={stylesRelId} Target="styles.xml" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles"/>

@@ -1,6 +1,7 @@
 package anchorman.core
 
 import java.io.{File, FileOutputStream, OutputStream}
+
 import scala.concurrent.{ExecutionContext => EC, _}
 
 trait DocumentWriter {

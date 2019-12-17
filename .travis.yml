@@ -1,47 +1,40 @@
 language: scala
-
 jdk:
-  - openjdk8
-
+- openjdk8
 scala:
-  - 2.12.8
-
+- 2.12.8
 env:
   global:
-    - secure: ppk0mFuR6ZneZncQjJRr1PEUUFw/raJliWNOqc4QPofc0l4qFlj4WAH1TDnCiSKFyMaRYGOI5Yb+XF9hGesBRt0zzS3w8uaKgmYrH/ncUOMg+YTapAhLGbAf0urCjkVxpludoPN17u9rCuzlVxYOKKUYR1cApIpK60atxF3XrCeFI0jFHQJeGR0mrCImciGkkRLsj7ncWRskIKoLIICAQ60ApY4LeABLBmTsq4XmG3MyJ2ubObW9tXkt/rFI7kmwp6Su0jCVEL/vMtBNgxXw+yPX6ZXFHa/xDgB0jNzDK5aAVlk/qCnC3rsW/WGGMzr1dhnLRRMaP3xcB3X8l5mR35tMmmEyNIwqdF92X5WZqXKVEnmOf6MkG3/LHdp5+lkqvBG5DiqLrqJnkCW2D8+1pAhgPrkfUD3tjqqLXeOK7dPIrqe2GulkfNVutsHKSWCk0nJ9tesrWJ79PAeRNkXOVp/jbLQQlQ3d9mGMFxlEZuGbQc63oellWzcGSY1otsja+nCInuvNITHblytJJ9grD5ibfPWYWXHHqQYUtYGPldq+m8d/OZ30LQZUP8OGS0Kcd4btzkeqt7408VaNIsLEdaXq5Tcu7MsYbgtC+GLewQGDJD1rVFKm2DAYNDRQcrBRCdfHKUHgTIlacg1TBQL7sTGsOUh4vtrr+9LYBMHoWu4=
-    - secure: M2iXBp6h7a9lfkCr1wsRk6L+4K1FeX44KoGC8ZztPJogxbqbw1c7Qe8aHpuLMXD/WIGnogA03TZ+XF/W/P2bAN2xJL0G9J1ht6lpIQ8Q+7CMAQ43UZWs4mPHo38jjaO3RVh5PRQtaf2ESe+I0izWmgkYDYP1IdkGp6nFcgN38GaIo32EIzU3s5qD7g6z4cmiVb5tPFvmkhYPnYvH72h+YklUiltIKwJC9mVYjHvo9a1LLIM+n0reloq2rty705LLY+CwJX+GSGWLgryRx4ySYGI9VE8VEE2/wk8+m6bEbcOa4gPcrx3Fq17NTRFCFNXl3ToqP6SidPOLr3oMp57lVz8tNSKHZQ8mli7R8M5VxGo7y7N8Cr4XrSnxsYpFh+jw3sJpFu4nCzyEA9SJdnNyVHYkQOQeALbiR0pGvuXRmLhZ2U5bHmkDzTZ2q4Bsi/ykR62N4ry5M/BottBlcIyjTiaWAtQ6zpCPEk+RqhfoVYeLkaw2m6JDnL1Ew415eao+VCffh4Blab5DPhnc4DvF2reObjlP3NEAuvDHb1SQ3JdBBU2cbYRaRcMcERUFYOWMFUJT8kNHuyNy7d1G5/LlS1WTHg9ZPuFeGQcRftlJiTw8y7iSiaJH4gEoOVvPzU+x1HXMPgCPxWtBCmYz9itfU3f8fJdI6nKfILpfF092RXM=
-    - secure: CcmW8vqH9Prwu8tggO52wMeCnKszVq6pD6e5DYQJNtdwZdHkheRUBNttx4DIfDe0pNeiDBtyGEcI7BxaaBaY2qgafnbMnCneq8wMpRu2jBOSVAk92f8cIHqbhfIdAFLJilzbbzOoZ1VNvbMnvoBQkINqd/k8/yia0cOnXSwgg42gS//i4aMzaelhENQRaHa4+YAS1JLob7wA9Lx2yuKdlLSuwMHM6BWHo9bdL1MsX42QLg9MRpBONdOvSb982J6nxl63teohuXtNZjH+SB28b+InIoyHEpyIjVDNZK7H/c2WfoLxh6qJ9X6ETDa61jpQApXIRvIQ3EycVhR8BdBmTF2IGQ3DgIuUp5hJw0ANxGSpDl3ArwDI/wYa5p9KU4WGshkFYdznrm6vq0awqFoNH9xaAN7EmuHxUvzJmBXFR3bJMd29oLvHtLi08plZyvC5aDeM0b43ndV5VguxoBK62eCUBVgnKB+ZDJoaXtySg0rU5BFAAmxc3kEXeUAv3/BccjI66aynb99OzCu/gEShPdJ/N41diVXuRr/n1XGamDakdvdEC8IOX+M0Zyis2gpM4/t8aPwCdRX75XGqCoOpDhTeiyeKZi1YNex2IiBUmEZhWWFRSbcbD6U7wP2fjPDA/Ku7Bk+rvg69iLSwAJF2SzyCDZ4JJROlDlsdbMgGHR0=
-
+  - secure: ppk0mFuR6ZneZncQjJRr1PEUUFw/raJliWNOqc4QPofc0l4qFlj4WAH1TDnCiSKFyMaRYGOI5Yb+XF9hGesBRt0zzS3w8uaKgmYrH/ncUOMg+YTapAhLGbAf0urCjkVxpludoPN17u9rCuzlVxYOKKUYR1cApIpK60atxF3XrCeFI0jFHQJeGR0mrCImciGkkRLsj7ncWRskIKoLIICAQ60ApY4LeABLBmTsq4XmG3MyJ2ubObW9tXkt/rFI7kmwp6Su0jCVEL/vMtBNgxXw+yPX6ZXFHa/xDgB0jNzDK5aAVlk/qCnC3rsW/WGGMzr1dhnLRRMaP3xcB3X8l5mR35tMmmEyNIwqdF92X5WZqXKVEnmOf6MkG3/LHdp5+lkqvBG5DiqLrqJnkCW2D8+1pAhgPrkfUD3tjqqLXeOK7dPIrqe2GulkfNVutsHKSWCk0nJ9tesrWJ79PAeRNkXOVp/jbLQQlQ3d9mGMFxlEZuGbQc63oellWzcGSY1otsja+nCInuvNITHblytJJ9grD5ibfPWYWXHHqQYUtYGPldq+m8d/OZ30LQZUP8OGS0Kcd4btzkeqt7408VaNIsLEdaXq5Tcu7MsYbgtC+GLewQGDJD1rVFKm2DAYNDRQcrBRCdfHKUHgTIlacg1TBQL7sTGsOUh4vtrr+9LYBMHoWu4=
+  - secure: M2iXBp6h7a9lfkCr1wsRk6L+4K1FeX44KoGC8ZztPJogxbqbw1c7Qe8aHpuLMXD/WIGnogA03TZ+XF/W/P2bAN2xJL0G9J1ht6lpIQ8Q+7CMAQ43UZWs4mPHo38jjaO3RVh5PRQtaf2ESe+I0izWmgkYDYP1IdkGp6nFcgN38GaIo32EIzU3s5qD7g6z4cmiVb5tPFvmkhYPnYvH72h+YklUiltIKwJC9mVYjHvo9a1LLIM+n0reloq2rty705LLY+CwJX+GSGWLgryRx4ySYGI9VE8VEE2/wk8+m6bEbcOa4gPcrx3Fq17NTRFCFNXl3ToqP6SidPOLr3oMp57lVz8tNSKHZQ8mli7R8M5VxGo7y7N8Cr4XrSnxsYpFh+jw3sJpFu4nCzyEA9SJdnNyVHYkQOQeALbiR0pGvuXRmLhZ2U5bHmkDzTZ2q4Bsi/ykR62N4ry5M/BottBlcIyjTiaWAtQ6zpCPEk+RqhfoVYeLkaw2m6JDnL1Ew415eao+VCffh4Blab5DPhnc4DvF2reObjlP3NEAuvDHb1SQ3JdBBU2cbYRaRcMcERUFYOWMFUJT8kNHuyNy7d1G5/LlS1WTHg9ZPuFeGQcRftlJiTw8y7iSiaJH4gEoOVvPzU+x1HXMPgCPxWtBCmYz9itfU3f8fJdI6nKfILpfF092RXM=
+  - secure: CcmW8vqH9Prwu8tggO52wMeCnKszVq6pD6e5DYQJNtdwZdHkheRUBNttx4DIfDe0pNeiDBtyGEcI7BxaaBaY2qgafnbMnCneq8wMpRu2jBOSVAk92f8cIHqbhfIdAFLJilzbbzOoZ1VNvbMnvoBQkINqd/k8/yia0cOnXSwgg42gS//i4aMzaelhENQRaHa4+YAS1JLob7wA9Lx2yuKdlLSuwMHM6BWHo9bdL1MsX42QLg9MRpBONdOvSb982J6nxl63teohuXtNZjH+SB28b+InIoyHEpyIjVDNZK7H/c2WfoLxh6qJ9X6ETDa61jpQApXIRvIQ3EycVhR8BdBmTF2IGQ3DgIuUp5hJw0ANxGSpDl3ArwDI/wYa5p9KU4WGshkFYdznrm6vq0awqFoNH9xaAN7EmuHxUvzJmBXFR3bJMd29oLvHtLi08plZyvC5aDeM0b43ndV5VguxoBK62eCUBVgnKB+ZDJoaXtySg0rU5BFAAmxc3kEXeUAv3/BccjI66aynb99OzCu/gEShPdJ/N41diVXuRr/n1XGamDakdvdEC8IOX+M0Zyis2gpM4/t8aPwCdRX75XGqCoOpDhTeiyeKZi1YNex2IiBUmEZhWWFRSbcbD6U7wP2fjPDA/Ku7Bk+rvg69iLSwAJF2SzyCDZ4JJROlDlsdbMgGHR0=
+  - secure: B/f6YChmNMXcgA4AFQlkzwWgynLTpVm03iVVlcLNgo0MMrN1fsd8AKSqCah0LxkPjTp7QihqnPYs06ExlH9yj653GJho0rBgii3FpMkJytbP9u3CCtzfW/o+H7mHsVADVpotIPGfm7Ldtv+YnX1SlxFmkZArTFDC8LK/MKI0aLnJwxr8uE3dh8Lcg2H6ylC9WNZiJX5eNxvKRVIIEaWOPPj+IHEkXPvWyOezovpj7LqOD0qJ5UIYWCWiZRo7rDSpFrIX4UZmBl5tPQiz2rEmX/BMsS7DY1ykF99KwPerAWoArwEwKlYGHIvQ7Ei3ggXlJkZ4qk/VFo2/H3gH+f1ZtKCpO5dJw1NmqyXkzXvia1XV6+2fSHZomZ6jDHx9wYtzsjckZUiE2c3m7oQAnAvPXsXUgFjOkfboKMQFjxORworUeM4mdecMd53ozkfer78aZKU5YzvgxHndinHeluTTeUWvdVAyjcmIXzSCy9fyKtQOK7S68Xn38bMpX4rHBCQFInHXKov2D9Ot8YwiiQZlY7Z982BQ/VTVzSQ1u74T0Oqbk4PFM3ribsKIwHRdAwww0jYZLXGYrJP8ssCfPxGpf+lEqDg3OF2hzTOu+ZElztdFYvUGZRxaNvBtTTze4o97zsJPftMaBXAZUcq/tmENbr4UGvsNPNmn7/HAT6Ej23o=
 before_install:
-  - |
-    if [ $TRAVIS_PULL_REQUEST = 'false' ]; then
-      openssl aes-256-cbc \
-        -K $encrypted_c5b8f1b6ba4e_key \
-        -iv $encrypted_c5b8f1b6ba4e_iv \
-        -in travis/secrets.tar.enc \
-        -out travis/secrets.tar -d;
-      tar xv -C travis -f travis/secrets.tar;
-    fi
-
+- |
+  if [ $TRAVIS_PULL_REQUEST = 'false' ]; then
+    openssl aes-256-cbc \
+      -K $encrypted_c5b8f1b6ba4e_key \
+      -iv $encrypted_c5b8f1b6ba4e_iv \
+      -in travis/secrets.tar.enc \
+      -out travis/secrets.tar -d;
+    tar xv -C travis -f travis/secrets.tar;
+  fi
 script:
-  - sbt ++$TRAVIS_SCALA_VERSION ci
-
+- sbt ++$TRAVIS_SCALA_VERSION ci
 after_success:
-  - |
-    if [ $TRAVIS_PULL_REQUEST = 'false' ]; then
-      sbt ++$TRAVIS_SCALA_VERSION releaseEarly;
-    fi
-
+- |
+  if [ $TRAVIS_PULL_REQUEST = 'false' ]; then
+    sbt ++$TRAVIS_SCALA_VERSION releaseEarly;
+  fi
 cache:
   directories:
-    - $HOME/.sbt/1.0
-    - $HOME/.sbt/boot/scala*
-    - $HOME/.sbt/cache
-    - $HOME/.sbt/launchers
-    - $HOME/.ivy2
-
+  - "$HOME/.sbt/1.0"
+  - "$HOME/.sbt/boot/scala*"
+  - "$HOME/.sbt/cache"
+  - "$HOME/.sbt/launchers"
+  - "$HOME/.ivy2"
 before_cache:
-  - du -h -d 1 $HOME/.ivy2/
-  - du -h -d 2 $HOME/.sbt/
-  - find $HOME/.sbt -name "*.lock" -type f -delete
-  - find $HOME/.ivy2/cache -name "ivydata-*.properties" -type f -delete
+- du -h -d 1 $HOME/.ivy2/
+- du -h -d 2 $HOME/.sbt/
+- find $HOME/.sbt -name "*.lock" -type f -delete
+- find $HOME/.ivy2/cache -name "ivydata-*.properties" -type f -delete

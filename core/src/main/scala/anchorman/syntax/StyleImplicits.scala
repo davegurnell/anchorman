@@ -11,7 +11,9 @@ trait StyleImplicits {
       para.copy(style = para.style.copy(spacing = Option(spacing)))
 
     def spacing(before: Dim, after: Dim): Para =
-      para.copy(style = para.style.copy(spacing = Option(ParaSpacing(before, after))))
+      para.copy(
+        style = para.style.copy(spacing = Option(ParaSpacing(before, after)))
+      )
 
     def shade(color: Color): Para =
       para.copy(style = para.style.copy(shading = Option(color)))

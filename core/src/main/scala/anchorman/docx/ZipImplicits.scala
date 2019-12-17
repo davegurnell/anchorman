@@ -13,7 +13,14 @@ object ZipImplicits {
       out.putNextEntry(new ZipEntry(path))
 
       val writer = new OutputStreamWriter(out)
-      try XML.write(writer, nodes.head, "UTF-8", true, null, MinimizeMode.Always)
+      try XML.write(
+        writer,
+        nodes.head,
+        "UTF-8",
+        true,
+        null,
+        MinimizeMode.Always
+      )
       finally writer.flush()
     }
 

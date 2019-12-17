@@ -1,6 +1,5 @@
 package anchorman
 
-import anchorman.core._
 import anchorman.syntax._
 
 class TextIntegrationSpec extends IntegrationSpec {

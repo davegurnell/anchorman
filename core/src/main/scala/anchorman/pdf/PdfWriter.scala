@@ -1,18 +1,16 @@
 package anchorman.pdf
 
 import java.io._
-import javax.xml._
-import javax.xml._
+
+import anchorman.core._
 import javax.xml.transform._
 import javax.xml.transform.sax._
 import javax.xml.transform.stream._
 import org.apache.fop.apps._
 
-import anchorman.core._
-
 object PdfWriter {
   // Step 1: Construct a FopFactory (reuse if you plan to render multiple documents!)
-  val fopFactory = new FopFactoryBuilder(new File(".").toURI()).build()
+  val fopFactory = new FopFactoryBuilder(new File(".").toURI).build()
 
   def write(doc: Document, file: File) = {
     // Step 2: Set up output stream.
@@ -30,7 +28,7 @@ object PdfWriter {
       val src = new StreamSource(new ByteArrayInputStream(FopWriter.write(doc)))
 
       // Resulting SAX events (the generated FO) must be piped through to FOP
-      val res = new SAXResult(fop.getDefaultHandler())
+      val res = new SAXResult(fop.getDefaultHandler)
 
       // Step 6: Start XSLT transformation and FOP processing
       transformer.transform(src, res)

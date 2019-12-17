@@ -13,8 +13,22 @@ object XmlImplicits {
         case b: NodeSeq =>
           val aWriter = new StringWriter
           val bWriter = new StringWriter
-          XML.write(aWriter, Group(a), "utf-8", false, null, MinimizeMode.Default)
-          XML.write(bWriter, Group(b), "utf-8", false, null, MinimizeMode.Default)
+          XML.write(
+            aWriter,
+            Group(a),
+            "utf-8",
+            false,
+            null,
+            MinimizeMode.Default
+          )
+          XML.write(
+            bWriter,
+            Group(b),
+            "utf-8",
+            false,
+            null,
+            MinimizeMode.Default
+          )
           val aString = aWriter.toString.replaceAll("\\s", "")
           val bString = bWriter.toString.replaceAll("\\s", "")
           // println(aString)

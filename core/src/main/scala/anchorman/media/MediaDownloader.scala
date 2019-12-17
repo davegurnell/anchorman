@@ -1,32 +1,50 @@
 package anchorman.media
 
 import anchorman.core._
+import cats.Applicative
+import cats.implicits._
 
-import scala.concurrent.{ExecutionContext => EC, _}
+abstract class MediaDownloader[F[_]: Applicative] {
+  def downloadImages(block: Block): F[List[ImageFile]]
 
-trait MediaDownloader {
-  def downloadImages(block: Block)(implicit ec: EC): Future[List[ImageFile]]
-
-  def images(block: Block): List[Image] =
+  final def images(block: Block): F[List[Image]] =
     block match {
-      case EmptyBlock           => Nil
-      case Para(span, _, _)     => images(span)
-      case UnorderedList(items) => items.flatMap(item => images(item.block))
-      case OrderedList(items)   => items.flatMap(item => images(item.block))
-      case Columns(blocks)      => blocks.flatMap(images)
-      case Table(rows, _, _)    => for {
-                                     row  <- rows
-                                     cell <- row.cells
-                                     url  <- images(cell.block)
-                                   } yield url
-      case BlockSeq(blocks)     => blocks.flatMap(images)
+      case EmptyBlock =>
+        List.empty[Image].pure[F]
+
+      case Para(span, _, _) =>
+        images(span)
+
+      case UnorderedList(items) =>
+        items.flatTraverse(item => images(item.block))
+
+      case OrderedList(items) =>
+        items.flatTraverse(item => images(item.block))
+
+      case Columns(blocks) =>
+        blocks.flatTraverse(images)
+
+      case Table(rows, _, _) =>
+        rows.flatTraverse { row =>
+          row.cells.flatTraverse(cell => images(cell.block))
+        }
+
+      case BlockSeq(blocks) =>
+        blocks.flatTraverse(images)
     }
 
-  def images(span: Span): List[Image] =
+  final def images(span: Span): F[List[Image]] =
     span match {
-      case EmptySpan            => Nil
-      case _ : Text             => Nil
-      case i : Image            => List(i)
-      case SpanSeq(spans)       => spans.flatMap(images)
+      case EmptySpan =>
+        List.empty[Image].pure[F]
+
+      case _: Text =>
+        List.empty[Image].pure[F]
+
+      case i: Image =>
+        List(i).pure[F]
+
+      case SpanSeq(spans) =>
+        spans.flatTraverse(images)
     }
 }

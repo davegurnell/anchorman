@@ -1,5 +1,9 @@
 # Created by https://www.gitignore.io
 
+## macOS
+
+.DS_Store
+
 ### Scala ###
 *.class
 *.log

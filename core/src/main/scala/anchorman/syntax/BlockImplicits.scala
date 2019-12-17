@@ -21,6 +21,8 @@ trait BlockImplicits {
   implicit val spanToBlockPromoter: BlockPromoter[Span] =
     BlockPromoter.instance[Span](Para(_))
 
-  implicit def spanPromoterToBlockPromoter[A](implicit spanPromoter: SpanPromoter[A]): BlockPromoter[A] =
+  implicit def spanPromoterToBlockPromoter[A](
+    implicit spanPromoter: SpanPromoter[A]
+  ): BlockPromoter[A] =
     BlockPromoter.instance[A](value => Para(spanPromoter(value)))
 }

@@ -2,11 +2,12 @@ package anchorman.core
 
 import java.io.{File, FileOutputStream, OutputStream}
 
-import scala.concurrent.{ExecutionContext => EC, _}
+import cats.Functor
+import cats.implicits._
 
-trait DocumentWriter {
-  def write(doc: Document, file: File)(implicit ec: EC): Future[File] =
+abstract class DocumentWriter[F[_]: Functor] {
+  def write(doc: Document, file: File): F[File] =
     write(doc, new FileOutputStream(file)).map(_ => file)
 
-  def write(doc: Document, output: OutputStream)(implicit ec: EC): Future[Unit]
+  def write(doc: Document, output: OutputStream): F[Unit]
 }

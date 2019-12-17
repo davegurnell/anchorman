@@ -97,5 +97,11 @@ lazy val play = project
   )
 
 lazy val root = project
-  .in(file("."))
   .aggregate(core, play)
+  .settings(
+    packagedArtifacts := Map.empty,
+    publishArtifact := false,
+    publishLocal := {},
+    publish := {},
+    skip in publish := true
+  )

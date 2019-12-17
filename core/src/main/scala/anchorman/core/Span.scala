@@ -21,8 +21,9 @@ object Image {
 
   def url(sourceUrls: NonEmptyList[String]): String =
     sourceUrls match {
-      case NonEmptyList(head, Nil)  => head
-      case NonEmptyList(head, tail) => s"superimpose:${(head :: tail).map(urlEncode(_, "utf-8")).mkString(":")}"
+      case NonEmptyList(head, Nil) => head
+      case NonEmptyList(head, tail) =>
+        s"superimpose:${(head :: tail).map(urlEncode(_, "utf-8")).mkString(":")}"
     }
 }
 

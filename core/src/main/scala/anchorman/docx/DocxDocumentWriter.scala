@@ -18,32 +18,34 @@ class DocxDocumentWriter(val styleWriter: DocxStyleWriter) {
 
     val seed = DocumentSeed(
       availableWidth = pageStyle.availableWidth,
-      media          = media.map(file => file.url -> file).toMap
+      media = media.map(file => file.url -> file).toMap
     )
 
     val state = for {
-      content   <- writeBlock(block)
+      content <- writeBlock(block)
       pageStyle <- writePageStyle(pageStyle)
     } yield {
-      <w:document xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math"
-                  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-                  xmlns:mo="http://schemas.microsoft.com/office/mac/office/2008/main"
-                  xmlns:mv="urn:schemas-microsoft-com:mac:vml"
-                  xmlns:o="urn:schemas-microsoft-com:office:office"
-                  xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"
-                  xmlns:v="urn:schemas-microsoft-com:vml"
-                  xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"
-                  xmlns:w10="urn:schemas-microsoft-com:office:word"
-                  xmlns:w14="http://schemas.microsoft.com/office/word/2010/wordml"
-                  xmlns:wne="http://schemas.microsoft.com/office/word/2006/wordml"
-                  xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"
-                  xmlns:wp14="http://schemas.microsoft.com/office/word/2010/wordprocessingDrawing"
-                  xmlns:wpc="http://schemas.microsoft.com/office/word/2010/wordprocessingCanvas"
-                  xmlns:wpg="http://schemas.microsoft.com/office/word/2010/wordprocessingGroup"
-                  xmlns:wpi="http://schemas.microsoft.com/office/word/2010/wordprocessingInk"
-                  xmlns:wps="http://schemas.microsoft.com/office/word/2010/wordprocessingShape"
-                  xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"
-                  xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">
+      <w:document 
+        xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:mo="http://schemas.microsoft.com/office/mac/office/2008/main"
+        xmlns:mv="urn:schemas-microsoft-com:mac:vml"
+        xmlns:o="urn:schemas-microsoft-com:office:office"
+        xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"
+        xmlns:v="urn:schemas-microsoft-com:vml"
+        xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"
+        xmlns:w10="urn:schemas-microsoft-com:office:word"
+        xmlns:w14="http://schemas.microsoft.com/office/word/2010/wordml"
+        xmlns:wne="http://schemas.microsoft.com/office/word/2006/wordml"
+        xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"
+        xmlns:wp14="http://schemas.microsoft.com/office/word/2010/wordprocessingDrawing"
+        xmlns:wpc="http://schemas.microsoft.com/office/word/2010/wordprocessingCanvas"
+        xmlns:wpg="http://schemas.microsoft.com/office/word/2010/wordprocessingGroup"
+        xmlns:wpi="http://schemas.microsoft.com/office/word/2010/wordprocessingInk"
+        xmlns:wps="http://schemas.microsoft.com/office/word/2010/wordprocessingShape"
+        xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"
+        xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture"
+      >
         <w:body>
           {content}
           <w:sectPr>{pageStyle}</w:sectPr>
@@ -86,36 +88,40 @@ class DocxDocumentWriter(val styleWriter: DocxStyleWriter) {
         }
     }
 
-  def writePara(span: Span, tpe: ParaType, style: ParaStyle): DocumentState[NodeSeq] =
+  def writePara(
+    span: Span,
+    tpe: ParaType,
+    style: ParaStyle
+  ): DocumentState[NodeSeq] =
     for {
       numbering <- getNumbering
-      content   <- writeSpan(span)
+      content <- writeSpan(span)
     } yield {
       val styleName: String =
         tpe match {
-          case ParaType.Title    => "Title"
-          case ParaType.Heading1 => "Heading1"
-          case ParaType.Heading2 => "Heading2"
-          case ParaType.Heading3 => "Heading3"
-          case ParaType.Default  if numbering.nonEmpty => "ListParagraph"
-          case ParaType.Default  => "Normal"
+          case ParaType.Title                         => "Title"
+          case ParaType.Heading1                      => "Heading1"
+          case ParaType.Heading2                      => "Heading2"
+          case ParaType.Heading3                      => "Heading3"
+          case ParaType.Default if numbering.nonEmpty => "ListParagraph"
+          case ParaType.Default                       => "Normal"
         }
 
       <w:p>
         <w:pPr>
           <w:pStyle w:val={styleName}/>
-          { styleWriter.writeParaStyle(style) }
+          {styleWriter.writeParaStyle(style)}
           {
-            numbering match {
-              case Some(Numbering(ilvl, numId)) =>
-                <w:numPr>
+        numbering match {
+          case Some(Numbering(ilvl, numId)) =>
+            <w:numPr>
                   <w:ilvl w:val={ilvl.toString}/>
                   <w:numId w:val={numId.toString}/>
                 </w:numPr>
-              case None =>
-                NodeSeq.Empty
-            }
-          }
+          case None =>
+            NodeSeq.Empty
+        }
+      }
         </w:pPr>
         {content}
       </w:p>
@@ -123,16 +129,16 @@ class DocxDocumentWriter(val styleWriter: DocxStyleWriter) {
 
   def writeList(items: List[ListItem]): DocumentState[NodeSeq] =
     for {
-      _   <- pushList
-      _   <- indent(listHangingIndent)
+      _ <- pushList
+      _ <- indent(listHangingIndent)
       ans <- items.foldLeft(emptyXml) { (accum, item) =>
-               for {
-                 a <- accum
-                 b <- writeBlock(item.block)
-               } yield a ++ b
-             }
-      _   <- indent(-listHangingIndent)
-      _   <- popList
+              for {
+                a <- accum
+                b <- writeBlock(item.block)
+              } yield a ++ b
+            }
+      _ <- indent(-listHangingIndent)
+      _ <- popList
     } yield ans
 
   def writeColumns(columns: List[Block]): DocumentState[NodeSeq] =
@@ -143,10 +149,12 @@ class DocxDocumentWriter(val styleWriter: DocxStyleWriter) {
     val columns = table.columns
 
     for {
-      width      <- getAvailableWidth
-      left       <- getLeftIndent
+      width <- getAvailableWidth
+      left <- getLeftIndent
       cellWidths <- getCellWidths(table, width)
-      rowsXml    <- rows.toList.traverse(row => writeTableRow(row, cellWidths, style)).map(_.flatten)
+      rowsXml <- rows.toList
+                  .traverse(row => writeTableRow(row, cellWidths, style))
+                  .map(_.flatten)
     } yield {
       <w:tbl>
         <w:tblPr>
@@ -159,12 +167,20 @@ class DocxDocumentWriter(val styleWriter: DocxStyleWriter) {
     }
   }
 
-  def writeTableRow(row: TableRow, cellWidths: Seq[Dim], tableStyle: TableStyle): DocumentState[NodeSeq] =
-    writeTableCells(row.cells, cellWidths, tableStyle).map(cell => <w:tr>{ cell }</w:tr>)
+  def writeTableRow(
+    row: TableRow,
+    cellWidths: Seq[Dim],
+    tableStyle: TableStyle
+  ): DocumentState[NodeSeq] =
+    writeTableCells(row.cells, cellWidths, tableStyle)
+      .map(cell => <w:tr>{cell}</w:tr>)
 
-
-  def writeTableCells(cells: Seq[TableCell], cellWidths: Seq[Dim], tableStyle: TableStyle): DocumentState[NodeSeq] =
-    (cells zip cellWidths).foldLeft(emptyXml) { (accum, pair) =>
+  def writeTableCells(
+    cells: Seq[TableCell],
+    cellWidths: Seq[Dim],
+    tableStyle: TableStyle
+  ): DocumentState[NodeSeq] =
+    cells.zip(cellWidths).foldLeft(emptyXml) { (accum, pair) =>
       val (cell, cellWidth) = pair
 
       for {
@@ -172,12 +188,16 @@ class DocxDocumentWriter(val styleWriter: DocxStyleWriter) {
         w <- getAvailableWidth
         l <- getLeftIndent
         r <- getRightIndent
-        _ <- reindent(cellWidth - tableStyle.margin.left - tableStyle.margin.right - tableStyle.cellMargin.left - tableStyle.cellMargin.right, Dim.zero, Dim.zero)
+        _ <- reindent(
+              cellWidth - tableStyle.margin.left - tableStyle.margin.right - tableStyle.cellMargin.left - tableStyle.cellMargin.right,
+              Dim.zero,
+              Dim.zero
+            )
         b <- writeBlockWithTrailingPara(cell.block)
         _ <- reindent(w, l, r)
       } yield {
         a ++
-        <w:tc>
+          <w:tc>
           <w:tcPr>
             <w:tcW w:w={cellWidth.dxa.toString} w:type="dxa"/>
           </w:tcPr>
@@ -214,11 +234,13 @@ class DocxDocumentWriter(val styleWriter: DocxStyleWriter) {
 
   def writeText(text: String, style: TextStyle): DocumentState[NodeSeq] =
     State.pure {
-      val leadingSpace:  Boolean = leadingSpaceRegex.pattern.matcher(text).find
+      val leadingSpace: Boolean = leadingSpaceRegex.pattern.matcher(text).find
       val trailingSpace: Boolean = trailingSpaceRegex.pattern.matcher(text).find
 
-      val prologue: NodeSeq = if(leadingSpace && !trailingSpace) preserveSpace else NodeSeq.Empty
-      val epilogue: NodeSeq = if(trailingSpace) preserveSpace else NodeSeq.Empty
+      val prologue: NodeSeq =
+        if (leadingSpace && !trailingSpace) preserveSpace else NodeSeq.Empty
+      val epilogue: NodeSeq =
+        if (trailingSpace) preserveSpace else NodeSeq.Empty
 
       <w:r>
         <w:rPr>{styleWriter.writeTextStyle(style)}</w:rPr>
@@ -229,11 +251,21 @@ class DocxDocumentWriter(val styleWriter: DocxStyleWriter) {
     }
 
   def writeImage(url: String): DocumentState[NodeSeq] =
-    getImageFile(url) flatMap {
-      case Some(ImageFile(url, relId, filename, contentType, pixelWidth, pixelHeight, content)) =>
+    getImageFile(url).flatMap {
+      case Some(
+          ImageFile(
+            url,
+            relId,
+            filename,
+            contentType,
+            pixelWidth,
+            pixelHeight,
+            content
+          )
+          ) =>
         for {
           index <- getMediaIndex
-          width <- getAvailableWidth.map(_ min (1.in * pixelWidth / 150))
+          width <- getAvailableWidth.map(_.min(1.in * pixelWidth / 150))
           height = width * pixelHeight / pixelWidth
         } yield {
           <w:r>
@@ -242,7 +274,9 @@ class DocxDocumentWriter(val styleWriter: DocxStyleWriter) {
                 <wp:extent cx={width.emu.toString} cy={height.emu.toString}/> <!-- TODO: Fix up -->
                 <wp:docPr id="1" name={filename}/> <!-- TODO: Fix up -->
                 <a:graphic>
-                  <a:graphicData uri={"http://schemas.openxmlformats.org/drawingml/2006/picture"}>
+                  <a:graphicData uri={
+            "http://schemas.openxmlformats.org/drawingml/2006/picture"
+          }>
                     <pic:pic>
                       <pic:nvPicPr>
                         <pic:cNvPr id={index.toString} name={filename} />
@@ -258,7 +292,9 @@ class DocxDocumentWriter(val styleWriter: DocxStyleWriter) {
                       <pic:spPr>
                         <a:xfrm>
                           <a:off x="0" y="0"/>
-                          <a:ext cx={width.emu.toString} cy={height.emu.toString}/>
+                          <a:ext cx={width.emu.toString} cy={
+            height.emu.toString
+          }/>
                         </a:xfrm>
                         <a:prstGeom prst="rect">
                           <a:avLst/>
@@ -269,11 +305,11 @@ class DocxDocumentWriter(val styleWriter: DocxStyleWriter) {
                 </a:graphic>
               </wp:inline>
             </w:drawing>
-          </w:r> : NodeSeq
+          </w:r>: NodeSeq
         }
 
       case None =>
-        State.pure(<w:r><w:t></w:t></w:r> : NodeSeq)
+        State.pure(<w:r><w:t></w:t></w:r>: NodeSeq)
     }
 
   def writeBlockWithTrailingPara(block: Block): DocumentState[NodeSeq] =
@@ -298,7 +334,7 @@ class DocxDocumentWriter(val styleWriter: DocxStyleWriter) {
     State.pure {
       <w:pgSz w:w={pageStyle.size.width.dxa.toString}
               w:h={pageStyle.size.height.dxa.toString}/> ++
-      <w:pgMar w:top={pageStyle.margin.top.dxa.toString}
+        <w:pgMar w:top={pageStyle.margin.top.dxa.toString}
                w:right={pageStyle.margin.right.dxa.toString}
                w:bottom={pageStyle.margin.bottom.dxa.toString}
                w:left={pageStyle.margin.left.dxa.toString}/>
@@ -306,7 +342,7 @@ class DocxDocumentWriter(val styleWriter: DocxStyleWriter) {
 }
 
 object DocxDocumentWriter {
-  val listIndent        = 360.dxa
+  val listIndent = 360.dxa
   val listHangingIndent = 360.dxa
 
   case class DocumentSeed(
@@ -337,21 +373,28 @@ object DocxDocumentWriter {
     State.modify { state =>
       state.copy(
         availableWidth = state.availableWidth - left - right,
-        leftIndent     = state.leftIndent     + left,
-        rightIndent    = state.rightIndent    + right
+        leftIndent = state.leftIndent + left,
+        rightIndent = state.rightIndent + right
       )
     }
 
-  def reindent(width: Dim, left: Dim = Dim.zero, right: Dim = Dim.zero): DocumentState[Unit] =
+  def reindent(
+    width: Dim,
+    left: Dim = Dim.zero,
+    right: Dim = Dim.zero
+  ): DocumentState[Unit] =
     State.modify { state =>
       state.copy(
         availableWidth = width,
-        leftIndent     = left,
-        rightIndent    = right
+        leftIndent = left,
+        rightIndent = right
       )
     }
 
-  def getCellWidths(table: Table, availableWidth: Dim): DocumentState[Seq[Dim]] =
+  def getCellWidths(
+    table: Table,
+    availableWidth: Dim
+  ): DocumentState[Seq[Dim]] =
     State.pure {
       val numAuto = table.columns.count {
         case _: TableColumn.Fixed => false
@@ -360,13 +403,15 @@ object DocxDocumentWriter {
 
       val remainingWidth =
         availableWidth -
-        table.style.margin.left -
-        table.style.margin.right -
-        table.columns.collect {
-          case TableColumn.Fixed(width) => width
-        }.foldLeft(Dim.zero)(_ + _)
+          table.style.margin.left -
+          table.style.margin.right -
+          table.columns
+            .collect {
+              case TableColumn.Fixed(width) => width
+            }
+            .foldLeft(Dim.zero)(_ + _)
 
-      table.columns map {
+      table.columns.map {
         case TableColumn.Auto       => remainingWidth / numAuto
         case TableColumn.Fixed(len) => len
       }
@@ -375,8 +420,8 @@ object DocxDocumentWriter {
   val pushList: DocumentState[Unit] =
     State.modify { state =>
       state.copy(
-        currListIds    = state.nextListId :: state.currListIds,
-        nextListId     = state.nextListId + 1
+        currListIds = state.nextListId :: state.currListIds,
+        nextListId = state.nextListId + 1
       )
     }
 
@@ -391,7 +436,7 @@ object DocxDocumentWriter {
 
   val getNumbering: DocumentState[Option[Numbering]] =
     State.inspect { state =>
-      if(state.currListIds.isEmpty) {
+      if (state.currListIds.isEmpty) {
         None
       } else {
         Some(Numbering(state.currListIds.length - 1, state.currListIds.head))
@@ -399,7 +444,9 @@ object DocxDocumentWriter {
     }
 
   val getMediaIndex: DocumentState[Int] =
-    State.apply(seed => (seed.copy(nextMediaId = seed.nextMediaId + 1), seed.nextMediaId))
+    State.apply(
+      seed => (seed.copy(nextMediaId = seed.nextMediaId + 1), seed.nextMediaId)
+    )
 
   def getImageFile(url: String): DocumentState[Option[ImageFile]] =
     State.inspect(_.media.get(url))

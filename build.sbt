@@ -1,92 +1,103 @@
-organization        in ThisBuild := "com.davegurnell"
-version             in ThisBuild := "0.5.0"
+// Publishing
 
-scalaVersion        in ThisBuild := "2.12.4"
-crossScalaVersions  in ThisBuild := Seq("2.11.11", "2.12.4")
-
-val commonScalacOptions =
+inThisBuild(
   Seq(
-    "-unchecked",
-    "-deprecation",
-    "-feature",
-    "-Xfatal-warnings",
-    "-Ypartial-unification"
-  )
+    organization := "com.davegurnell",
+    version := "0.6.0",
+    scalaVersion := "2.12.8",
+    crossScalaVersions := Seq("2.12.8"),
+    resolvers += Resolver.sonatypeRepo("snapshots"),
+    licenses += ("Apache-2.0", url("http://apache.org/licenses/LICENSE-2.0")),
+    homepage := Some(url("https://github.com/davegurnell/anchorman")),
+    scmInfo := Some(
+      ScmInfo(
+        url("https://github.com/davegurnell/anchorman.git"),
+        "scm:git@github.com:davegurnell/anchorman.git"
+      )
+    ),
+    developers := List(
+      Developer(
+        id = "davegurnell",
+        name = "Dave Gurnell",
+        email = "dave@cartographer.io",
+        url = url("https://twitter.com/davegurnell")
+      )
+    ),
+    pgpPublicRing := file("./travis/local.pubring.asc"),
+    pgpSecretRing := file("./travis/local.secring.asc"),
+  ) ++ usePgpKeyHex("4DD9512A6F3C2CCF05D2B4E7DF704C4F70202105")
+)
 
-val commonLibraryDependencies =
-  Seq(
-    "org.scalatest" %% "scalatest" % "3.0.1" % Test,
-    "org.scalatest" %% "scalatest" % "3.0.1" % IntegrationTest
-  )
+// Command Aliases
 
-def sonatypeSettings(libraryName: String) =
-  Seq(
-    name                := libraryName,
-    publishTo           := sonatypePublishTo.value,
-    publishMavenStyle   := true,
-    licenses            += ("Apache-2.0", url("http://apache.org/licenses/LICENSE-2.0")),
-    pomExtra            := {
-                             <url>https://github.com/davegurnell/anchorman</url>
-                             <scm>
-                               <connection>scm:git:github.com/davegurnell/anchorman</connection>
-                               <developerConnection>scm:git:git@github.com:davegurnell/anchorman</developerConnection>
-                               <url>github.com/davegurnell/anchorman</url>
-                             </scm>
-                             <developers>
-                               <developer>
-                                 <id>davegurnell</id>
-                                 <name>Dave Gurnell</name>
-                                 <url>http://twitter.com/davegurnell</url>
-                               </developer>
-                             </developers>
-                           }
-  )
+addCommandAlias(
+  "ci",
+  ";clean ;coverage ;compile ;test ;it:test ;coverageReport ;package"
+)
 
-val disableSonatypeSettings =
-  Seq(
-    packagedArtifacts := Map.empty,
-    publishArtifact   := false,
-    publishLocal      := {},
-    publish           := {},
-    skip in publish   := true
-  )
+addCommandAlias("release", "releaseEarly")
 
-resolvers += Resolver.sonatypeRepo("snapshots")
+// Common Project Settings
 
-lazy val core = project.in(file("core"))
+val commonScalacOptions = Seq(
+  "-unchecked",
+  "-deprecation",
+  "-feature",
+  "-language:higherKinds",
+  "-Xfatal-warnings",
+  "-Ypartial-unification",
+)
+
+val commonLibraryDependencies = Seq(
+  "org.scalatest" %% "scalatest" % "3.0.1" % Test,
+  "org.scalatest" %% "scalatest" % "3.0.1" % IntegrationTest
+)
+
+def commonScalafmtSettings =
+  Seq(scalafmtOnCompile := true) ++
+    inConfig(IntegrationTest)(
+      org.scalafmt.sbt.ScalafmtPlugin.scalafmtConfigSettings
+    )
+
+// Projects
+
+lazy val core = project
+  .in(file("core"))
   .configs(IntegrationTest)
   .settings(Defaults.itSettings)
-  .settings(sonatypeSettings("anchorman-core"))
+  .settings(commonScalafmtSettings)
   .settings(
-    scalacOptions       ++= commonScalacOptions,
+    name := "anchorman-core",
+    scalacOptions ++= commonScalacOptions,
     libraryDependencies ++= commonLibraryDependencies,
     libraryDependencies ++= Seq(
-                              "com.davegurnell"        %% "unindent"          % "1.1.0",
-                              "com.typesafe.play"      %% "play-ws"           % "2.6.10",
-                              "joda-time"               % "joda-time"         % "2.8.1",
-                              "org.apache.poi"          % "poi"               % "3.14",
-                              "org.apache.poi"          % "poi-ooxml"         % "3.14",
-                              "org.apache.poi"          % "poi-ooxml-schemas" % "3.14",
-                              "org.apache.xmlgraphics"  % "fop"               % "2.1",
-                              "org.scala-lang.modules" %% "scala-xml"         % "1.0.6",
-                              "org.typelevel"          %% "cats-core"         % "1.0.1"
-                            )
+      "com.davegurnell"        %% "unindent"         % "1.1.0",
+      "joda-time"              % "joda-time"         % "2.8.1",
+      "org.apache.poi"         % "poi"               % "3.14",
+      "org.apache.poi"         % "poi-ooxml"         % "3.14",
+      "org.apache.poi"         % "poi-ooxml-schemas" % "3.14",
+      "org.apache.xmlgraphics" % "fop"               % "2.1",
+      "org.scala-lang.modules" %% "scala-xml"        % "1.2.0",
+      "org.typelevel"          %% "cats-core"        % "1.4.0",
+    ),
   )
 
-lazy val play = project.in(file("play"))
+lazy val play = project
+  .in(file("play"))
   .dependsOn(core)
   .configs(IntegrationTest)
   .settings(Defaults.itSettings)
-  .settings(sonatypeSettings("anchorman-play"))
+  .settings(commonScalafmtSettings)
   .settings(
+    name := "anchorman-play",
+    scalacOptions ++= commonScalacOptions,
     libraryDependencies ++= commonLibraryDependencies,
     libraryDependencies ++= Seq(
-                              "com.typesafe.play" %% "play-ws"     % "2.6.11",
-                              "com.typesafe.akka" %% "akka-stream" % "2.4.17" % IntegrationTest,
-                              "com.typesafe.play" %% "play-ahc-ws" % "2.6.11" % IntegrationTest
-                            )
+      "com.typesafe.play" %% "play-ws-standalone"     % "2.1.2",
+      "com.typesafe.play" %% "play-ahc-ws-standalone" % "2.1.2"
+    ),
   )
 
-lazy val root = project.in(file("."))
+lazy val root = project
+  .in(file("."))
   .aggregate(core, play)
-  .settings(disableSonatypeSettings)

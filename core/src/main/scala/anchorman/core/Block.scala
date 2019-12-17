@@ -5,9 +5,9 @@ sealed abstract class Block extends Product with Serializable
 case object EmptyBlock extends Block
 
 case class Para(
-  span  : Span      = EmptySpan,
-  tpe   : ParaType  = ParaType.Default,
-  style : ParaStyle = ParaStyle.empty
+  span: Span = EmptySpan,
+  tpe: ParaType = ParaType.Default,
+  style: ParaStyle = ParaStyle.empty
 ) extends Block
 
 object Para {
@@ -19,9 +19,9 @@ case class UnorderedList(items: List[ListItem]) extends Block
 case class OrderedList(items: List[ListItem]) extends Block
 
 case class Table(
-  rows          : List[TableRow],
-  manualColumns : Option[List[TableColumn]] = None,
-  style         : TableStyle                = TableStyle.default
+  rows: List[TableRow],
+  manualColumns: Option[List[TableColumn]] = None,
+  style: TableStyle = TableStyle.default
 ) extends Block {
   val numRows: Int =
     rows.length
@@ -43,16 +43,16 @@ case class BlockSeq(blocks: List[Block]) extends Block
 
 sealed abstract class ParaType extends Product with Serializable
 object ParaType {
-  case object Title    extends ParaType
+  case object Title extends ParaType
   case object Heading1 extends ParaType
   case object Heading2 extends ParaType
   case object Heading3 extends ParaType
-  case object Default  extends ParaType
+  case object Default extends ParaType
 }
 
 case class ListItem(block: Block)
 
-case class TableRow(cells: Seq[TableCell])
+case class TableRow(cells: List[TableCell])
 
 case class TableCell(block: Block)
 

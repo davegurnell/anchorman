@@ -11,28 +11,31 @@ class DocxDocumentWriterSpec extends FreeSpec with Matchers {
   import DocxDocumentWriter._
 
   val writer = new DocxDocumentWriter(new DocxStyleWriter)
-  val seed   = DocumentSeed(availableWidth = 1000.dxa)
+  val seed = DocumentSeed(availableWidth = 1000.dxa)
 
   "spans" - {
     "write empty span" in {
-      val actual   = writer.writeSpan(EmptySpan).runA(seed).value
+      val actual = writer.writeSpan(EmptySpan).runA(seed).value
       val expected = NodeSeq.Empty
 
       actual should ===(expected)
     }
 
     "write text span" in {
-      val actual   = writer.writeSpan(Text("Hello world")).runA(seed).value
+      val actual = writer.writeSpan(Text("Hello world")).runA(seed).value
       val expected = <w:r><w:rPr></w:rPr><w:t>Hello world</w:t></w:r>
 
       actual should ===(expected)
     }
 
     "write span seq" in {
-      val actual   = writer.writeSpan(SpanSeq(List(Text("Hello "), Text("world")))).runA(seed).value
+      val actual = writer
+        .writeSpan(SpanSeq(List(Text("Hello "), Text("world"))))
+        .runA(seed)
+        .value
       val expected =
         <w:r><w:rPr></w:rPr><w:t>Hello </w:t><w:t xml:space="preserve"> </w:t></w:r> ++
-        <w:r><w:rPr></w:rPr><w:t>world</w:t></w:r>
+          <w:r><w:rPr></w:rPr><w:t>world</w:t></w:r>
 
       actual should ===(expected)
     }
@@ -40,14 +43,14 @@ class DocxDocumentWriterSpec extends FreeSpec with Matchers {
 
   "block" - {
     "write empty block" in {
-      val actual   = writer.writeBlock(EmptyBlock).runA(seed).value
+      val actual = writer.writeBlock(EmptyBlock).runA(seed).value
       val expected = NodeSeq.Empty
 
       actual should ===(expected)
     }
 
     "write para" in {
-      val actual   = writer.writeBlock(para("Hello world")).runA(seed).value
+      val actual = writer.writeBlock(para("Hello world")).runA(seed).value
       val expected =
         <w:p>
           <w:pPr>
@@ -78,13 +81,13 @@ class DocxDocumentWriterSpec extends FreeSpec with Matchers {
           </w:pPr>
           <w:r>
             <w:rPr></w:rPr>
-            <w:t>{ content }</w:t>
+            <w:t>{content}</w:t>
           </w:r>
         </w:p>
 
       val expected: NodeSeq =
         expectedPara("Hello") ++
-        expectedPara("world")
+          expectedPara("world")
 
       actual should ===(expected)
     }
@@ -104,20 +107,25 @@ class DocxDocumentWriterSpec extends FreeSpec with Matchers {
           </w:pPr>
           <w:r>
             <w:rPr></w:rPr>
-            <w:t>{ content }</w:t>
+            <w:t>{content}</w:t>
           </w:r>
         </w:p>
 
       val expected: NodeSeq =
         expectedPara("Hello") ++
-        expectedPara("world")
+          expectedPara("world")
 
       actual should ===(expected)
     }
 
     "write table" in {
       val actual: NodeSeq =
-        writer.writeBlock(table(row(cell("A1"), cell("A2")), row(cell("B1"), cell("B2")))).runA(seed).value
+        writer
+          .writeBlock(
+            table(row(cell("A1"), cell("A2")), row(cell("B1"), cell("B2")))
+          )
+          .runA(seed)
+          .value
 
       def expectedCell(content: String): NodeSeq =
         <w:tc>
@@ -131,7 +139,7 @@ class DocxDocumentWriterSpec extends FreeSpec with Matchers {
             <w:r>
               <w:rPr>
               </w:rPr>
-              <w:t>{ content }</w:t>
+              <w:t>{content}</w:t>
             </w:r>
           </w:p>
         </w:tc>
@@ -157,15 +165,15 @@ class DocxDocumentWriterSpec extends FreeSpec with Matchers {
             </w:tblCellMar>
           </w:tblPr>
           <w:tr>
-            { expectedCell("A1") }
-            { expectedCell("A2") }
+            {expectedCell("A1")}
+            {expectedCell("A2")}
           </w:tr>
           <w:tr>
-            { expectedCell("B1") }
-            { expectedCell("B2") }
+            {expectedCell("B1")}
+            {expectedCell("B2")}
           </w:tr>
         </w:tbl> ++
-        <w:p>
+          <w:p>
           <w:pPr>
           <w:pStyle w:val="Normal"/>
           </w:pPr>

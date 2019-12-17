@@ -1,8 +1,17 @@
 # Created by https://www.gitignore.io
 
+### sbt-release-early ###
+local.*
+
+### macOS ###
+.DS_Store
+
 ### Scala ###
 *.class
 *.log
+.bloop
+.metals
+.idea
 
 # sbt specific
 .cache

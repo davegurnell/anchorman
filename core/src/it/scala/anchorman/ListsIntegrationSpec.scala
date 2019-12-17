@@ -7,7 +7,6 @@ class ListsIntegrationSpec extends IntegrationSpec {
   def name = "lists"
   def doc = document(
     para("Unordered Lists"),
-
     ulist2 { i =>
       block(
         para(s"Unordered item $i"),
@@ -21,9 +20,7 @@ class ListsIntegrationSpec extends IntegrationSpec {
         }
       )
     },
-
     para("Ordered Lists"),
-
     olist3 { i =>
       block(
         para(s"Ordered item $i"),
@@ -37,9 +34,7 @@ class ListsIntegrationSpec extends IntegrationSpec {
         }
       )
     },
-
     para("Mixed Lists"),
-
     olist3 { i =>
       block(
         para(s"Ordered item $i"),

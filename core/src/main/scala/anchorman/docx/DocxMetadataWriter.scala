@@ -46,10 +46,10 @@ class DocxMetadataWriter {
       <Relationship Id={numberingRelId} Target="numbering.xml" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/numbering"/>
       <Relationship Id={stylesRelId} Target="styles.xml" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles"/>
       {
-        media.map { file =>
-          <Relationship Id={file.relId} Target={"media/" + file.filename} Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image"/>
-        }
+      media.map { file =>
+        <Relationship Id={file.relId} Target={"media/" + file.filename} Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image"/>
       }
+    }
     </Relationships>
   }
 }

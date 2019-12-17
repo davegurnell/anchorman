@@ -19,7 +19,7 @@ object FopWriter {
 
       <fo:page-sequence master-reference="simpleA4">
         <fo:flow flow-name="xsl-region-body">
-          { writeBlock(block) }
+          {writeBlock(block)}
         </fo:flow>
       </fo:page-sequence>
     </fo:root>
@@ -32,11 +32,11 @@ object FopWriter {
 
       case Para(span, tpe, style) =>
         <fo:block>
-          { writeSpan(span) }
+          {writeSpan(span)}
         </fo:block>
 
       case OrderedList(items) =>
-        writeList(items, index => <fo:block>{ index + 1 }.</fo:block>)
+        writeList(items, index => <fo:block>{index + 1}.</fo:block>)
 
       case UnorderedList(items) =>
         writeList(items, index => <fo:block>•</fo:block>)
@@ -56,19 +56,19 @@ object FopWriter {
   def writeList(items: Seq[ListItem], bullet: Int => NodeSeq): NodeSeq =
     <fo:list-block>
       {
-        items.zipWithIndex map { pair =>
-          val (ListItem(block), index) = pair
+      items.zipWithIndex.map { pair =>
+        val (ListItem(block), index) = pair
 
-          <fo:list-item>
+        <fo:list-item>
             <fo:list-item-label end-indent="label-end()">
-              { bullet(index) }
+              {bullet(index)}
             </fo:list-item-label>
             <fo:list-item-body>
-              { writeBlock(block) }
+              {writeBlock(block)}
             </fo:list-item-body>
           </fo:list-item>
-        }
       }
+    }
     </fo:list-block>
 
   def writeSpan(span: Span): NodeSeq =

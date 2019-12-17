@@ -19,21 +19,22 @@ class DocxStyleWriter {
       ParaAndTextStyle(heading3ParaStyle, heading3TextStyle)
     ) = doc
 
-    <w:styles mc:Ignorable="w14"
-              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-              xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"
-              xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"
-              xmlns:w14="http://schemas.microsoft.com/office/word/2010/wordml">
-
+    <w:styles 
+      mc:Ignorable="w14"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"
+      xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"
+      xmlns:w14="http://schemas.microsoft.com/office/word/2010/wordml"
+    >
       <w:docDefaults>
         <w:pPrDefault>
           <w:pPr>
-            { writeParaStyle(defaultParaStyle) }
+            {writeParaStyle(defaultParaStyle)}
           </w:pPr>
         </w:pPrDefault>
         <w:rPrDefault>
           <w:rPr>
-            { writeTextStyle(defaultTextStyle) }
+            {writeTextStyle(defaultTextStyle)}
           </w:rPr>
         </w:rPrDefault>
       </w:docDefaults>
@@ -41,50 +42,50 @@ class DocxStyleWriter {
       <w:style w:type="paragraph" w:styleId="Normal">
         <w:name w:val="Normal"/>
         <w:pPr>
-          { writeParaStyle(defaultParaStyle) }
+          {writeParaStyle(defaultParaStyle)}
         </w:pPr>
         <w:rPr>
-          { writeTextStyle(defaultTextStyle) }
+          {writeTextStyle(defaultTextStyle)}
         </w:rPr>
       </w:style>
 
       <w:style w:type="paragraph" w:styleId="ListParagraph">
         <w:name w:val="List Paragraph"/>
         <w:pPr>
-          { writeParaStyle(defaultParaStyle) }
+          {writeParaStyle(defaultParaStyle)}
         </w:pPr>
         <w:rPr>
-          { writeTextStyle(defaultTextStyle) }
+          {writeTextStyle(defaultTextStyle)}
         </w:rPr>
       </w:style>
 
       <w:style w:type="paragraph" w:styleId="Heading1">
         <w:name w:val="Heading 1"/>
         <w:pPr>
-          { writeParaStyle(heading1ParaStyle) }
+          {writeParaStyle(heading1ParaStyle)}
         </w:pPr>
         <w:rPr>
-          { writeTextStyle(heading1TextStyle) }
+          {writeTextStyle(heading1TextStyle)}
         </w:rPr>
       </w:style>
 
       <w:style w:type="paragraph" w:styleId="Heading2">
         <w:name w:val="Heading 2"/>
         <w:pPr>
-          { writeParaStyle(heading2ParaStyle) }
+          {writeParaStyle(heading2ParaStyle)}
         </w:pPr>
         <w:rPr>
-          { writeTextStyle(heading2TextStyle) }
+          {writeTextStyle(heading2TextStyle)}
         </w:rPr>
       </w:style>
 
       <w:style w:type="paragraph" w:styleId="Heading3">
         <w:name w:val="Heading 3"/>
         <w:pPr>
-          { writeParaStyle(heading3ParaStyle) }
+          {writeParaStyle(heading3ParaStyle)}
         </w:pPr>
         <w:rPr>
-          { writeTextStyle(heading3TextStyle) }
+          {writeTextStyle(heading3TextStyle)}
         </w:rPr>
       </w:style>
 
@@ -136,20 +137,40 @@ class DocxStyleWriter {
   def writeTableStyle(style: TableStyle) = {
     val tableBordersStyle: NodeSeq =
       <w:tblBorders>
-        { if(style.borders.top)    <w:top w:val="single" w:sz="1"/>    else NodeSeq.Empty }
-        { if(style.borders.right)  <w:end w:val="single" w:sz="1"/>    else NodeSeq.Empty }
-        { if(style.borders.bottom) <w:bottom w:val="single" w:sz="1"/> else NodeSeq.Empty }
-        { if(style.borders.left)   <w:start w:val="single" w:sz="1"/>  else NodeSeq.Empty }
-        { if(style.cellBorders.top  || style.cellBorders.bottom) <w:insideH w:val="single" w:sz="1"/> else NodeSeq.Empty }
-        { if(style.cellBorders.left || style.cellBorders.right)  <w:insideV w:val="single" w:sz="1"/> else NodeSeq.Empty }
+      {
+        if (style.borders.top) <w:top w:val="single" w:sz="1"/>
+        else NodeSeq.Empty
+      }
+      {
+        if (style.borders.right) <w:end w:val="single" w:sz="1"/>
+        else NodeSeq.Empty
+      }
+      {
+        if (style.borders.bottom) <w:bottom w:val="single" w:sz="1"/>
+        else NodeSeq.Empty
+      }
+      {
+        if (style.borders.left) <w:start w:val="single" w:sz="1"/>
+        else NodeSeq.Empty
+      }
+      {
+        if (style.cellBorders.top || style.cellBorders.bottom)
+          <w:insideH w:val="single" w:sz="1"/>
+        else NodeSeq.Empty
+      }
+      {
+        if (style.cellBorders.left || style.cellBorders.right)
+          <w:insideV w:val="single" w:sz="1"/>
+        else NodeSeq.Empty
+      }
       </w:tblBorders>
 
     val cellMarginStyle: NodeSeq =
       <w:tblCellMar>
-        { <w:top w:w={style.cellMargin.top.dxa.toString} w:type="dxa"/> }
-        { <w:end w:w={style.cellMargin.right.dxa.toString} w:type="dxa"/> }
-        { <w:bottom w:w={style.cellMargin.bottom.dxa.toString} w:type="dxa"/> }
-        { <w:start w:w={style.cellMargin.left.dxa.toString} w:type="dxa"/> }
+        {<w:top w:w={style.cellMargin.top.dxa.toString} w:type="dxa"/>}
+        {<w:end w:w={style.cellMargin.right.dxa.toString} w:type="dxa"/>}
+        {<w:bottom w:w={style.cellMargin.bottom.dxa.toString} w:type="dxa"/>}
+        {<w:start w:w={style.cellMargin.left.dxa.toString} w:type="dxa"/>}
       </w:tblCellMar>
 
     tableBordersStyle ++ cellMarginStyle

@@ -3,15 +3,15 @@ package anchorman
 import java.io.File
 
 import akka.actor._
-import akka.stream._
 import anchorman.core._
 import anchorman.docx._
-import anchorman.media.play._
+import anchorman.media._
+import cats.implicits._
 import org.scalatest._
-import _root_.play.api.libs.ws.ahc.AhcWSClient
+import play.api.libs.ws.ahc._
 
-import scala.concurrent._
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent._
 import scala.concurrent.duration._
 
 trait IntegrationSpec extends FreeSpec {
@@ -31,12 +31,9 @@ trait IntegrationSpec extends FreeSpec {
       implicit val system: ActorSystem =
         ActorSystem("IntegrationSpec")
 
-      implicit val materializer: ActorMaterializer =
-        ActorMaterializer()
-
-      val wsClient = AhcWSClient()
+      val wsClient = StandaloneAhcWSClient()
       val mediaDownloader = new WsClientMediaDownloader(wsClient)
-      val docxWriter = new DocxWriter(mediaDownloader)
+      val docxWriter = new DocxWriter[Future](mediaDownloader)
 
       try {
         directory.mkdirs()

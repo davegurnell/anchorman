@@ -5,12 +5,8 @@ import java.io.File
 import anchorman.core._
 import anchorman.docx._
 import anchorman.media._
-import anchorman.media.noop._
+import cats.Id
 import org.scalatest._
-
-import scala.concurrent._
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.duration._
 
 trait IntegrationSpec extends FreeSpec {
   def name: String
@@ -26,10 +22,10 @@ trait IntegrationSpec extends FreeSpec {
     val file = outputFile("docx")
 
     s"writes ${file.getPath}" in {
-      val mediaDownloader = new NoopMediaDownloader()
-      val docxWriter = new DocxWriter(mediaDownloader)
+      val mediaDownloader = new NoopMediaDownloader[Id]()
+      val docxWriter = new DocxWriter[Id](mediaDownloader)
       directory.mkdirs()
-      Await.result(docxWriter.write(doc, file), 5.seconds)
+      docxWriter.write(doc, file)
     }
   }
 }

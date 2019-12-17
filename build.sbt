@@ -60,7 +60,7 @@ def commonScalafmtSettings =
 
 // Projects
 
-lazy val core = project
+lazy val anchormanCore = project
   .in(file("core"))
   .configs(IntegrationTest)
   .settings(Defaults.itSettings)
@@ -82,9 +82,9 @@ lazy val core = project
     // releaseEarlyPublish := PgpKeys.publishSigned.value
   )
 
-lazy val play = project
+lazy val anchormanPlay = project
   .in(file("play"))
-  .dependsOn(core)
+  .dependsOn(anchormanCore)
   .configs(IntegrationTest)
   .settings(Defaults.itSettings)
   .settings(commonScalafmtSettings)
@@ -99,9 +99,9 @@ lazy val play = project
     // releaseEarlyPublish := PgpKeys.publishSigned.value
   )
 
-lazy val root = project
+lazy val anchorman = project
   .in(file("."))
-  .aggregate(core, play)
+  .aggregate(anchormanCore, anchormanPlay)
   .settings(
     packagedArtifacts := Map.empty,
     publishArtifact := false,

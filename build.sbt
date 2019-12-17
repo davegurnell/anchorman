@@ -23,6 +23,7 @@ inThisBuild(
     ),
     pgpPublicRing := file("./travis/local.pubring.asc"),
     pgpSecretRing := file("./travis/local.secring.asc"),
+    releaseEarlyEnableLocalReleases := true,
   ) ++ usePgpKeyHex("4DD9512A6F3C2CCF05D2B4E7DF704C4F70202105")
 )
 

@@ -3,6 +3,9 @@
 ### sbt-release-early ###
 local.*
 
+### direnv ###
+.envrc
+
 ### macOS ###
 .DS_Store
 

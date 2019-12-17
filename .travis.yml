@@ -20,12 +20,12 @@ before_install:
       tar xv -C travis -f travis/secrets.tar;
     fi
 script:
-  - sbt ++$TRAVIS_SCALA_VERSION ci
+  - sbt ci
 after_success:
   - bash <(curl -s https://codecov.io/bash)
   - |
     if [ $TRAVIS_PULL_REQUEST = 'false' ]; then
-      sbt ++$TRAVIS_SCALA_VERSION releaseEarly;
+      sbt releaseEarly;
     fi
 cache:
   directories:

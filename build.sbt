@@ -27,15 +27,6 @@ inThisBuild(
   )
 )
 
-// Command Aliases
-
-addCommandAlias(
-  "ci",
-  ";clean ;coverage ;compile ;test ;coverageReport"
-)
-
-addCommandAlias("release", ";releaseEarly ;sonatypeReleaseAll")
-
 // Common Project Settings
 
 val commonScalacOptions = Seq(
@@ -78,8 +69,7 @@ lazy val anchormanCore = project
       "org.apache.xmlgraphics" % "fop"               % "2.1",
       "org.scala-lang.modules" %% "scala-xml"        % "1.2.0",
       "org.typelevel"          %% "cats-core"        % "1.4.0",
-    ),
-    // releaseEarlyPublish := PgpKeys.publishSigned.value
+    )
   )
 
 lazy val anchormanPlay = project
@@ -95,17 +85,22 @@ lazy val anchormanPlay = project
     libraryDependencies ++= Seq(
       "com.typesafe.play" %% "play-ws-standalone"     % "2.1.2",
       "com.typesafe.play" %% "play-ahc-ws-standalone" % "2.1.2"
-    ),
-    // releaseEarlyPublish := PgpKeys.publishSigned.value
+    )
   )
 
 lazy val anchorman = project
   .in(file("."))
   .aggregate(anchormanCore, anchormanPlay)
-  .settings(
-    packagedArtifacts := Map.empty,
-    publishArtifact := false,
-    publishLocal := {},
-    publish := {},
-    skip in publish := true
-  )
+  .settings(publishArtifact := false)
+
+// Command Aliases
+
+addCommandAlias(
+  "ci",
+  ";clean ;coverage ;compile ;test ;coverageReport"
+)
+
+addCommandAlias(
+  "release",
+  ";releaseEarly"
+)

@@ -25,7 +25,7 @@ after_success:
   - bash <(curl -s https://codecov.io/bash)
   - |
     if [ $TRAVIS_PULL_REQUEST = 'false' ]; then
-      sbt releaseEarly;
+      sbt release
     fi
 cache:
   directories:

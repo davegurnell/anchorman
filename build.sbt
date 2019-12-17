@@ -3,7 +3,6 @@
 inThisBuild(
   Seq(
     organization := "com.davegurnell",
-    version := "0.6.0",
     scalaVersion := "2.12.8",
     crossScalaVersions := Seq("2.12.8"),
     resolvers += Resolver.sonatypeRepo("snapshots"),

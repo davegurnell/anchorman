@@ -6,8 +6,8 @@ Early alpha status. Work in progress.
 
 Copyright 2016 Dave Gurnell. Licensed [Apache 2][license].
 
-[![Build Status](https://travis-ci.org/davegurnell/anchorman.svg?branch=develop)](https://travis-ci.org/davegurnell/anchorman)
-[![Coverage status](https://img.shields.io/codecov/c/github/davegurnell/anchorman/develop.svg)](https://codecov.io/github/davegurnell/anchorman)
+[![Build Status](https://travis-ci.org/davegurnell/anchorman.svg?branch=master)](https://travis-ci.org/davegurnell/anchorman)
+[![Coverage status](https://img.shields.io/codecov/c/github/davegurnell/anchorman/master.svg)](https://codecov.io/github/davegurnell/anchorman)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.davegurnell/anchorman-core_2.12/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.davegurnell/anchorman-core_2.12)
 
 ## Getting Started

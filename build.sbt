@@ -31,7 +31,7 @@ inThisBuild(
 
 addCommandAlias(
   "ci",
-  ";clean ;coverage ;compile ;test ;it:test ;coverageReport ;package"
+  ";clean ;coverage ;compile ;test ;coverageReport ;package"
 )
 
 addCommandAlias("release", "releaseEarly")

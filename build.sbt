@@ -24,7 +24,7 @@ inThisBuild(
     pgpPublicRing := file("./travis/local.pubring.asc"),
     pgpSecretRing := file("./travis/local.secring.asc"),
     releaseEarlyEnableLocalReleases := true,
-  ) ++ usePgpKeyHex("4DD9512A6F3C2CCF05D2B4E7DF704C4F70202105")
+  )
 )
 
 // Command Aliases
@@ -34,7 +34,7 @@ addCommandAlias(
   ";clean ;coverage ;compile ;test ;coverageReport"
 )
 
-addCommandAlias("release", "releaseEarly")
+addCommandAlias("release", ";releaseEarly ;sonatypeReleaseAll")
 
 // Common Project Settings
 
@@ -79,6 +79,7 @@ lazy val core = project
       "org.scala-lang.modules" %% "scala-xml"        % "1.2.0",
       "org.typelevel"          %% "cats-core"        % "1.4.0",
     ),
+    // releaseEarlyPublish := PgpKeys.publishSigned.value
   )
 
 lazy val play = project
@@ -95,9 +96,11 @@ lazy val play = project
       "com.typesafe.play" %% "play-ws-standalone"     % "2.1.2",
       "com.typesafe.play" %% "play-ahc-ws-standalone" % "2.1.2"
     ),
+    // releaseEarlyPublish := PgpKeys.publishSigned.value
   )
 
 lazy val root = project
+  .in(file("."))
   .aggregate(core, play)
   .settings(
     packagedArtifacts := Map.empty,

@@ -36,18 +36,17 @@ val doc: Document = document(
   para(
     """
     |This is a paragraph. Isn't it lovely?
-    |But wait! You ain't seen nuffink yet...
+    |But wait! There's more!
     """.trim.stripMargin
   ),
   para(
     """
-    |This paragraph is centered.
-    |(Check the style modifier below.)
+    |The style modifier below centers this paragraph.
     """.trim.stripMargin
   ).align(TextAlign.Center),
   olist(
     item("This is a numbered list."),
-    item("Amazong, huh?"),
+    item("Amazing!"),
     item("Just like good old HTML"),
   )
 )

@@ -3,10 +3,12 @@ package anchorman.docx
 import anchorman.core._
 import anchorman.syntax._
 import org.scalatest._
+import org.scalatest.freespec._
+import org.scalatest.matchers.should._
 
 import scala.xml.NodeSeq
 
-class DocxDocumentWriterSpec extends FreeSpec with Matchers {
+class DocxDocumentWriterSpec extends AnyFreeSpec with Matchers {
   import XmlImplicits._
   import DocxDocumentWriter._
 
@@ -29,11 +31,12 @@ class DocxDocumentWriterSpec extends FreeSpec with Matchers {
     }
 
     "write span seq" in {
-      val actual = writer
+      val actual: NodeSeq = writer
         .writeSpan(SpanSeq(List(Text("Hello "), Text("world"))))
         .runA(seed)
         .value
-      val expected =
+
+      val expected: NodeSeq =
         <w:r><w:rPr></w:rPr><w:t>Hello </w:t><w:t xml:space="preserve"> </w:t></w:r> ++
           <w:r><w:rPr></w:rPr><w:t>world</w:t></w:r>
 

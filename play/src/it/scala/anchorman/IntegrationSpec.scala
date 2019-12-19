@@ -8,13 +8,14 @@ import anchorman.docx._
 import anchorman.media._
 import cats.implicits._
 import org.scalatest._
+import org.scalatest.freespec._
 import play.api.libs.ws.ahc._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent._
 import scala.concurrent.duration._
 
-trait IntegrationSpec extends FreeSpec {
+trait IntegrationSpec extends AnyFreeSpec {
   def name: String
   def doc: Document
 

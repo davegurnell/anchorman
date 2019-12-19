@@ -2,8 +2,10 @@ package anchorman.core
 
 import anchorman.syntax._
 import org.scalatest._
+import org.scalatest.freespec._
+import org.scalatest.matchers.should._
 
-class AstSpec extends FreeSpec with Matchers {
+class AstSpec extends AnyFreeSpec with Matchers {
   "table" - {
     val t = table(row(cell("A1")), row(cell("A2"), cell("B2"), cell("C2")))
 

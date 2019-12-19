@@ -3,7 +3,8 @@
 inThisBuild(
   Seq(
     organization := "com.davegurnell",
-    scalaVersion := "2.12.8",
+    scalaVersion := "2.13.1",
+    crossScalaVersions := Seq("2.12.9", "2.13.1"),
     resolvers += Resolver.sonatypeRepo("snapshots"),
     licenses += ("Apache-2.0", url("http://apache.org/licenses/LICENSE-2.0")),
     homepage := Some(url("https://github.com/davegurnell/anchorman")),
@@ -35,12 +36,11 @@ val commonScalacOptions = Seq(
   "-feature",
   "-language:higherKinds",
   "-Xfatal-warnings",
-  "-Ypartial-unification",
 )
 
 val commonLibraryDependencies = Seq(
-  "org.scalatest" %% "scalatest" % "3.0.1" % Test,
-  "org.scalatest" %% "scalatest" % "3.0.1" % IntegrationTest
+  "org.scalatest" %% "scalatest" % "3.1.0" % Test,
+  "org.scalatest" %% "scalatest" % "3.1.0" % IntegrationTest
 )
 
 def commonScalafmtSettings =
@@ -61,14 +61,14 @@ lazy val anchormanCore = project
     scalacOptions ++= commonScalacOptions,
     libraryDependencies ++= commonLibraryDependencies,
     libraryDependencies ++= Seq(
-      "com.davegurnell"        %% "unindent"         % "1.1.0",
-      "joda-time"              % "joda-time"         % "2.8.1",
-      "org.apache.poi"         % "poi"               % "3.14",
-      "org.apache.poi"         % "poi-ooxml"         % "3.14",
-      "org.apache.poi"         % "poi-ooxml-schemas" % "3.14",
-      "org.apache.xmlgraphics" % "fop"               % "2.1",
-      "org.scala-lang.modules" %% "scala-xml"        % "1.2.0",
-      "org.typelevel"          %% "cats-core"        % "1.4.0",
+      "com.davegurnell" %% "unindent" % "1.2.0",
+      "joda-time"       % "joda-time" % "2.10.5",
+      // "org.apache.poi"         % "poi"               % "4.1.1",
+      // "org.apache.poi"         % "poi-ooxml"         % "4.1.1",
+      // "org.apache.poi"         % "poi-ooxml-schemas" % "4.1.1",
+      "org.apache.xmlgraphics" % "fop"        % "2.1",
+      "org.scala-lang.modules" %% "scala-xml" % "1.2.0",
+      "org.typelevel"          %% "cats-core" % "2.1.0",
     )
   )
 

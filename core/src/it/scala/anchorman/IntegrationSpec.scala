@@ -7,8 +7,9 @@ import anchorman.docx._
 import anchorman.media._
 import cats.Id
 import org.scalatest._
+import org.scalatest.freespec._
 
-trait IntegrationSpec extends FreeSpec {
+trait IntegrationSpec extends AnyFreeSpec {
   def name: String
   def doc: Document
 

@@ -1,11 +1,8 @@
 package anchorman.docx
 
-import java.security.MessageDigest
-import javax.xml.bind.DatatypeConverter
-
 import anchorman.core.Document
 import anchorman.media._
-
+import com.roundeights.hasher.Implicits._
 import scala.xml.NodeSeq
 
 class DocxMetadataWriter {
@@ -18,11 +15,8 @@ class DocxMetadataWriter {
   val stylesRelId: String =
     "rStyles"
 
-  def mediaRelId(url: String): String = {
-    val digest = MessageDigest.getInstance("MD5")
-    digest.update(url.getBytes)
-    "rMedia" + DatatypeConverter.printHexBinary(digest.digest()).toUpperCase
-  }
+  def mediaRelId(url: String): String =
+    "rMedia" + url.md5.hex.toUpperCase
 
   def writeContentTypes(doc: Document): NodeSeq =
     <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">

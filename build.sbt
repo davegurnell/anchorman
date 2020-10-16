@@ -1,32 +1,7 @@
-// Publishing
+organization in ThisBuild := "com.davegurnell"
 
-inThisBuild(
-  Seq(
-    organization := "com.davegurnell",
-    scalaVersion := "2.13.1",
-    crossScalaVersions := Seq("2.12.9", "2.13.1"),
-    resolvers += Resolver.sonatypeRepo("snapshots"),
-    licenses += ("Apache-2.0", url("http://apache.org/licenses/LICENSE-2.0")),
-    homepage := Some(url("https://github.com/davegurnell/anchorman")),
-    scmInfo := Some(
-      ScmInfo(
-        url("https://github.com/davegurnell/anchorman.git"),
-        "scm:git@github.com:davegurnell/anchorman.git"
-      )
-    ),
-    developers := List(
-      Developer(
-        id = "davegurnell",
-        name = "Dave Gurnell",
-        email = "dave@cartographer.io",
-        url = url("https://twitter.com/davegurnell")
-      )
-    ),
-    pgpPublicRing := file("./travis/local.pubring.asc"),
-    pgpSecretRing := file("./travis/local.secring.asc"),
-    releaseEarlyEnableLocalReleases := true,
-  )
-)
+scalaVersion in ThisBuild := "2.13.1"
+crossScalaVersions in ThisBuild := Seq("2.13.1")
 
 // Common Project Settings
 
@@ -49,6 +24,85 @@ def commonScalafmtSettings =
       org.scalafmt.sbt.ScalafmtPlugin.scalafmtConfigSettings
     )
 
+resolvers += Resolver.sonatypeRepo("snapshots")
+
+// Versioning
+
+// A lot of the versioning, publishing, and Travis-related code below is adapted from:
+//
+//   - https://alexn.org/blog/2017/08/16/automatic-releases-sbt-travis.html
+//   - http://caryrobbins.com/dev/sbt-publishing/
+
+enablePlugins(GitVersioning)
+enablePlugins(GitBranchPrompt)
+
+// Use "1.2.3-4-aabbccdde-SNAPSHOT" versnining:
+git.useGitDescribe := true
+
+// Put "-SNAPSHOT" on a commit if it's not a tag:
+git.gitUncommittedChanges := git.gitCurrentTags.value.isEmpty
+
+// This is what release tags look like:
+val ReleaseTag = """^([\d\.]+)$""".r
+
+git.gitTagToVersionNumber := {
+  case ReleaseTag(v) => Some(v)
+  case _             => None
+}
+
+// Publishing
+
+publishMavenStyle := true
+
+isSnapshot := version.value.endsWith("SNAPSHOT")
+
+publishTo := sonatypePublishTo.value
+
+usePgpKeyHex("DF704C4F70202105")
+
+pgpPublicRing := file("./travis/local.pubring.asc")
+pgpSecretRing := file("./travis/local.secring.asc")
+
+licenses += ("Apache-2.0", url("http://apache.org/licenses/LICENSE-2.0"))
+
+homepage := Some(url("https://github.com/davegurnell/anchorman"))
+
+scmInfo := Some(
+  ScmInfo(
+    url("https://github.com/davegurnell/anchorman.git"),
+    "scm:git@github.com:davegurnell/anchorman.git"
+  )
+)
+
+developers := List(
+  Developer(
+    id = "davegurnell",
+    name = "Dave Gurnell",
+    email = "dave@cartographer.io",
+    url = url("https://twitter.com/davegurnell")
+  )
+)
+
+// Travis
+
+// Sonatype credentials are on Travis in a secret:
+credentials ++= {
+  val travisCredentials = for {
+    user <- sys.env.get("SONATYPE_USER")
+    pass <- sys.env.get("SONATYPE_PASS")
+  } yield Credentials(
+    "Sonatype Nexus Repository Manager",
+    "oss.sonatype.org",
+    user,
+    pass
+  )
+
+  travisCredentials.toSeq
+}
+
+// Password to the PGP certificate is on Travis in a secret:
+pgpPassphrase := sys.env.get("PGP_PASS").map(_.toArray)
+
 // Projects
 
 lazy val anchormanCore = project
@@ -61,7 +115,8 @@ lazy val anchormanCore = project
     scalacOptions ++= commonScalacOptions,
     libraryDependencies ++= commonLibraryDependencies,
     libraryDependencies ++= Seq(
-      "com.davegurnell" %% "unindent" % "1.2.0",
+      "com.davegurnell" %% "unindent" % "1.3.0",
+      "com.outr"        %% "hasher"   % "1.2.2",
       "joda-time"       % "joda-time" % "2.10.5",
       // "org.apache.poi"         % "poi"               % "4.1.1",
       // "org.apache.poi"         % "poi-ooxml"         % "4.1.1",
@@ -83,8 +138,8 @@ lazy val anchormanPlay = project
     scalacOptions ++= commonScalacOptions,
     libraryDependencies ++= commonLibraryDependencies,
     libraryDependencies ++= Seq(
-      "com.typesafe.play" %% "play-ws-standalone"     % "2.1.2",
-      "com.typesafe.play" %% "play-ahc-ws-standalone" % "2.1.2"
+      "com.typesafe.play" %% "play-ws"     % "2.7.4" % Provided,
+      "com.typesafe.play" %% "play-ahc-ws" % "2.7.4" % Provided
     )
   )
 
@@ -95,12 +150,9 @@ lazy val anchorman = project
 
 // Command Aliases
 
-addCommandAlias(
-  "ci",
-  ";clean ;coverage ;compile ;test ;coverageReport"
-)
+addCommandAlias("ci", ";clean ;coverage ;compile ;test ;coverageReport")
+addCommandAlias("release", ";+publishSigned ;sonatypeReleaseAll")
 
-addCommandAlias(
-  "release",
-  ";releaseEarly"
-)
+// Formatting
+
+scalafmtOnCompile := true

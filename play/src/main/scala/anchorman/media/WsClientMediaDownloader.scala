@@ -11,12 +11,12 @@ import cats.implicits._
 import javax.imageio.ImageIO
 import javax.xml.bind.DatatypeConverter
 import play.api.libs.ws._
-
-import scala.concurrent.{ExecutionContext => EC, _}
+import scala.concurrent._
 import scala.util.Try
 
-class WsClientMediaDownloader(val wsClient: StandaloneWSClient)(implicit ec: EC)
-  extends MediaDownloader[Future] {
+class WsClientMediaDownloader(val wsClient: StandaloneWSClient)(
+  implicit ec: ExecutionContext
+) extends MediaDownloader[Future] {
   override def downloadImages(block: Block): Future[List[ImageFile]] =
     for {
       images <- this.images(block)

@@ -56,11 +56,12 @@ publishMavenStyle := true
 
 isSnapshot := version.value.endsWith("SNAPSHOT")
 
-publishTo := sonatypePublishTo.value
+publishTo in ThisBuild := sonatypePublishTo.value
 
 usePgpKeyHex("DF704C4F70202105")
 
 pgpPublicRing := file("./travis/local.pubring.asc")
+
 pgpSecretRing := file("./travis/local.secring.asc")
 
 licenses += ("Apache-2.0", url("http://apache.org/licenses/LICENSE-2.0"))
@@ -70,7 +71,7 @@ homepage := Some(url("https://github.com/davegurnell/anchorman"))
 scmInfo := Some(
   ScmInfo(
     url("https://github.com/davegurnell/anchorman.git"),
-    "scm:git@github.com:davegurnell/anchorman.git"
+    "scm:git@github.com:davegurnell/anchorman.git",
   )
 )
 
@@ -79,7 +80,7 @@ developers := List(
     id = "davegurnell",
     name = "Dave Gurnell",
     email = "dave@cartographer.io",
-    url = url("https://twitter.com/davegurnell")
+    url = url("https://twitter.com/davegurnell"),
   )
 )
 

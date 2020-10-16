@@ -59,18 +59,20 @@ pgpPublicRing := file("./travis/local.pubring.asc")
 
 pgpSecretRing := file("./travis/local.secring.asc")
 
-licenses += ("Apache-2.0", url("http://apache.org/licenses/LICENSE-2.0"))
+licenses in ThisBuild += ("Apache-2.0", url(
+  "http://apache.org/licenses/LICENSE-2.0"
+))
 
-homepage := Some(url("https://github.com/davegurnell/anchorman"))
+homepage in ThisBuild := Some(url("https://github.com/davegurnell/anchorman"))
 
-scmInfo := Some(
+scmInfo in ThisBuild := Some(
   ScmInfo(
     url("https://github.com/davegurnell/anchorman.git"),
     "scm:git@github.com:davegurnell/anchorman.git",
   )
 )
 
-developers := List(
+developers in ThisBuild := List(
   Developer(
     id = "davegurnell",
     name = "Dave Gurnell",

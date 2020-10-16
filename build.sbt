@@ -1,7 +1,7 @@
 organization in ThisBuild := "com.davegurnell"
 
 scalaVersion in ThisBuild := "2.13.1"
-crossScalaVersions in ThisBuild := Seq("2.13.1")
+crossScalaVersions in ThisBuild := Seq("2.12.12", "2.13.1")
 
 // Common Project Settings
 
@@ -24,7 +24,10 @@ def commonScalafmtSettings =
       org.scalafmt.sbt.ScalafmtPlugin.scalafmtConfigSettings
     )
 
-resolvers += Resolver.sonatypeRepo("snapshots")
+resolvers in ThisBuild ++= Seq(
+  Resolver.sonatypeRepo("releases"),
+  Resolver.sonatypeRepo("snapshots"),
+)
 
 // Versioning
 
@@ -116,7 +119,7 @@ lazy val anchormanCore = project
     scalacOptions ++= commonScalacOptions,
     libraryDependencies ++= commonLibraryDependencies,
     libraryDependencies ++= Seq(
-      "com.davegurnell" %% "unindent" % "1.3.0",
+      "com.davegurnell" %% "unindent" % "1.3.1",
       "com.outr"        %% "hasher"   % "1.2.2",
       "joda-time"       % "joda-time" % "2.10.5",
       // "org.apache.poi"         % "poi"               % "4.1.1",

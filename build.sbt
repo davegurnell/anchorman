@@ -1,7 +1,13 @@
-organization in ThisBuild := "com.davegurnell"
+enablePlugins(GitVersioning)
+enablePlugins(GitBranchPrompt)
 
-scalaVersion in ThisBuild := "2.13.14"
-crossScalaVersions in ThisBuild := Seq("2.13.14")
+// Basic settings -------------------------------
+
+ThisBuild / organization := "com.davegurnell"
+
+ThisBuild / scalaVersion := "2.13.14"
+
+ThisBuild / crossScalaVersions := Seq("2.13.14")
 
 // Common Project Settings
 
@@ -18,61 +24,54 @@ val commonLibraryDependencies = Seq(
   "org.scalatest" %% "scalatest" % "3.1.0" % IntegrationTest
 )
 
-def commonScalafmtSettings =
-  Seq(scalafmtOnCompile := true) ++
-    inConfig(IntegrationTest)(
-      org.scalafmt.sbt.ScalafmtPlugin.scalafmtConfigSettings
-    )
+ThisBuild / resolvers ++= Resolver.sonatypeOssRepos("releases") ++ Resolver.sonatypeOssRepos("snapshots")
 
-resolvers in ThisBuild ++= Seq(
-  Resolver.sonatypeRepo("releases"),
-  Resolver.sonatypeRepo("snapshots"),
+// Versioning -----------------------------------
+
+ThisBuild / versionScheme := Some("early-semver")
+
+git.gitUncommittedChanges := git.gitCurrentTags.value.isEmpty // Put "-SNAPSHOT" on a commit if it's not a tag
+
+// Github Actions -------------------------------
+
+ThisBuild / githubWorkflowJavaVersions := Seq("adopt@1.11")
+
+ThisBuild / githubWorkflowTargetTags ++= Seq("v*")
+
+ThisBuild / githubWorkflowPublishTargetBranches := Seq(RefPredicate.StartsWith(Ref.Tag("v")))
+
+ThisBuild / githubWorkflowPublish := Seq(
+  WorkflowStep.Sbt(
+    List("ci-release"),
+    env = Map(
+      "PGP_PASSPHRASE"    -> "${{ secrets.PGP_PASSPHRASE }}",
+      "PGP_SECRET"        -> "${{ secrets.PGP_SECRET }}",
+      "SONATYPE_PASSWORD" -> "${{ secrets.SONATYPE_PASSWORD }}",
+      "SONATYPE_USERNAME" -> "${{ secrets.SONATYPE_USERNAME }}"
+    )
+  )
 )
 
-// Versioning
-
-// A lot of the versioning, publishing, and Travis-related code below is adapted from:
-//
-//   - https://alexn.org/blog/2017/08/16/automatic-releases-sbt-travis.html
-//   - http://caryrobbins.com/dev/sbt-publishing/
-
-enablePlugins(GitVersioning)
-enablePlugins(GitBranchPrompt)
-
-// Use "1.2.3-4-aabbccdde-SNAPSHOT" versnining:
-git.useGitDescribe := true
-
-// Put "-SNAPSHOT" on a commit if it's not a tag:
-git.gitUncommittedChanges := git.gitCurrentTags.value.isEmpty
-
-// Publishing
+// Publishing -----------------------------------
 
 publishMavenStyle := true
 
 isSnapshot := version.value.endsWith("SNAPSHOT")
 
-publishTo in ThisBuild := sonatypePublishTo.value
-
 usePgpKeyHex("DF704C4F70202105")
 
-pgpPublicRing := file("./travis/local.pubring.asc")
+ThisBuild / licenses += ("Apache-2.0", url("http://apache.org/licenses/LICENSE-2.0"))
 
-pgpSecretRing := file("./travis/local.secring.asc")
+ThisBuild / homepage := Some(url("https://github.com/davegurnell/anchorman"))
 
-licenses in ThisBuild += ("Apache-2.0", url(
-  "http://apache.org/licenses/LICENSE-2.0"
-))
-
-homepage in ThisBuild := Some(url("https://github.com/davegurnell/anchorman"))
-
-scmInfo in ThisBuild := Some(
+ThisBuild / scmInfo := Some(
   ScmInfo(
     url("https://github.com/davegurnell/anchorman.git"),
     "scm:git@github.com:davegurnell/anchorman.git",
   )
 )
 
-developers in ThisBuild := List(
+ThisBuild / developers := List(
   Developer(
     id = "davegurnell",
     name = "Dave Gurnell",
@@ -81,33 +80,12 @@ developers in ThisBuild := List(
   )
 )
 
-// Travis
-
-// Sonatype credentials are on Travis in a secret:
-credentials ++= {
-  val travisCredentials = for {
-    user <- sys.env.get("SONATYPE_USER")
-    pass <- sys.env.get("SONATYPE_PASS")
-  } yield Credentials(
-    "Sonatype Nexus Repository Manager",
-    "oss.sonatype.org",
-    user,
-    pass
-  )
-
-  travisCredentials.toSeq
-}
-
-// Password to the PGP certificate is on Travis in a secret:
-pgpPassphrase := sys.env.get("PGP_PASS").map(_.toArray)
-
 // Projects
 
 lazy val anchormanCore = project
   .in(file("core"))
   .configs(IntegrationTest)
   .settings(Defaults.itSettings)
-  .settings(commonScalafmtSettings)
   .settings(
     name := "anchorman-core",
     scalacOptions ++= commonScalacOptions,
@@ -127,7 +105,6 @@ lazy val anchormanPlay = project
   .dependsOn(anchormanCore)
   .configs(IntegrationTest)
   .settings(Defaults.itSettings)
-  .settings(commonScalafmtSettings)
   .settings(
     name := "anchorman-play",
     scalacOptions ++= commonScalacOptions,
@@ -144,11 +121,7 @@ lazy val anchorman = project
   .aggregate(anchormanCore, anchormanPlay)
   .settings(publishArtifact := false)
 
-// Command Aliases
+// Command Aliases ------------------------------
 
 addCommandAlias("ci", ";clean ;coverage ;compile ;test ;coverageReport")
 addCommandAlias("release", ";+publishSigned ;sonatypeReleaseAll")
-
-// Formatting
-
-scalafmtOnCompile := true

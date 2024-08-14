@@ -15,6 +15,7 @@ local.*
 ### Scala ###
 *.class
 *.log
+.bsp
 .bloop
 .metals
 .idea

@@ -33,7 +33,7 @@ git.gitUncommittedChanges := git.gitCurrentTags.value.isEmpty // Put "-SNAPSHOT"
 
 // Github Actions -------------------------------
 
-ThisBuild / githubWorkflowJavaVersions += JavaSpec.temurin("17")
+ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.temurin("17"))
 
 ThisBuild / githubWorkflowTargetTags ++= Seq("v*")
 

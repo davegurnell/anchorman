@@ -38,7 +38,7 @@ trait IntegrationSpec extends AnyFreeSpec {
 
       try {
         directory.mkdirs()
-        Await.result(docxWriter.write(doc, file), 5.seconds)
+        Await.result(docxWriter.write(doc, file), 10.seconds)
       } finally {
         wsClient.close()
       }

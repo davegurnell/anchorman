@@ -60,7 +60,7 @@ publishMavenStyle := true
 
 isSnapshot := version.value.endsWith("SNAPSHOT")
 
-usePgpKeyHex("DF704C4F70202105")
+usePgpKeyHex("93EB089E23C95A4AAC03B32DE679A8D04452EE29")
 
 ThisBuild / licenses += ("Apache-2.0", url("http://apache.org/licenses/LICENSE-2.0"))
 

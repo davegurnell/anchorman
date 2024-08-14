@@ -107,6 +107,7 @@ lazy val coreIt = project
     publish := {},
     publishLocal := {},
     publishArtifact := false,
+    publish / skip := true,
   )
 
 lazy val play = project
@@ -130,6 +131,7 @@ lazy val playIt = project
     publish := {},
     publishLocal := {},
     publishArtifact := false,
+    publish / skip := true,
     libraryDependencies ++= Seq(
       "org.apache.pekko" %% "pekko-actor" % "1.0.2",
       "org.playframework" %% "play-ws"     % "3.0.1",

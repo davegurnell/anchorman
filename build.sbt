@@ -21,7 +21,6 @@ val commonScalacOptions = Seq(
 
 val commonLibraryDependencies = Seq(
   "org.scalatest" %% "scalatest" % "3.1.0" % Test,
-  "org.scalatest" %% "scalatest" % "3.1.0" % IntegrationTest
 )
 
 ThisBuild / resolvers ++= Resolver.sonatypeOssRepos("releases") ++ Resolver.sonatypeOssRepos("snapshots")
@@ -34,7 +33,7 @@ git.gitUncommittedChanges := git.gitCurrentTags.value.isEmpty // Put "-SNAPSHOT"
 
 // Github Actions -------------------------------
 
-ThisBuild / githubWorkflowJavaVersions := Seq("adopt@1.11")
+ThisBuild / githubWorkflowJavaVersions += JavaSpec.temurin("17")
 
 ThisBuild / githubWorkflowTargetTags ++= Seq("v*")
 
@@ -82,10 +81,8 @@ ThisBuild / developers := List(
 
 // Projects
 
-lazy val anchormanCore = project
+lazy val core = project
   .in(file("core"))
-  .configs(IntegrationTest)
-  .settings(Defaults.itSettings)
   .settings(
     name := "anchorman-core",
     scalacOptions ++= commonScalacOptions,
@@ -100,11 +97,18 @@ lazy val anchormanCore = project
     )
   )
 
-lazy val anchormanPlay = project
+lazy val coreIt = project
+  .in(file("core-it"))
+  .dependsOn(core % "compile;test;test->test")
+  .settings(
+    publish := {},
+    publishLocal := {},
+    publishArtifact := false,
+  )
+
+lazy val play = project
   .in(file("play"))
-  .dependsOn(anchormanCore)
-  .configs(IntegrationTest)
-  .settings(Defaults.itSettings)
+  .dependsOn(core)
   .settings(
     name := "anchorman-play",
     scalacOptions ++= commonScalacOptions,
@@ -116,9 +120,23 @@ lazy val anchormanPlay = project
     )
   )
 
+lazy val playIt = project
+  .in(file("play-it"))
+  .dependsOn(play % "compile;test;test->test")
+  .settings(
+    publish := {},
+    publishLocal := {},
+    publishArtifact := false,
+    libraryDependencies ++= Seq(
+      "org.apache.pekko" %% "pekko-actor" % "1.0.2",
+      "org.playframework" %% "play-ws"     % "3.0.1",
+      "org.playframework" %% "play-ahc-ws" % "3.0.1",
+    )
+  )
+
 lazy val anchorman = project
   .in(file("."))
-  .aggregate(anchormanCore, anchormanPlay)
+  .aggregate(core, coreIt, play, playIt)
   .settings(publishArtifact := false)
 
 // Command Aliases ------------------------------

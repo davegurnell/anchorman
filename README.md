@@ -85,7 +85,7 @@ We'd happily accept a PR for an [sttp](https://github.com/softwaremill/sttp) cli
 ```scala
 import java.io.File
 
-import akka.actor._
+import pekko.actor._
 import anchorman.core._
 import anchorman.docx._
 import anchorman.media._

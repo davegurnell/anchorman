@@ -2,7 +2,7 @@ package anchorman
 
 import java.io.File
 
-import akka.actor._
+import org.apache.pekko.actor._
 import anchorman.core._
 import anchorman.docx._
 import anchorman.media._

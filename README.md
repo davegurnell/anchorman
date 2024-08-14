@@ -109,3 +109,21 @@ val future: Future[Unit] =
 
 Await.result(future, 5.seconds)
 ```
+
+## Releasing
+
+The repo uses sbt-native-packager and sbt-ci-release to publish:
+
+- snapshot builds when regular commits are pushed to the main branch;
+- release builds when tags of the form `vX.Y.Z` are pushed.
+
+The release uses four environment variables:
+
+- `PGP_PASSPHRASE` is the password for "Anchorman Publishing Key";
+- `PGP_SECRET` is the base64 encoding of the secret key,
+  exported from GPG as a single line of base64-encoded text
+  [as described here](https://github.com/sbt/sbt-ci-release?tab=readme-ov-file#secrets)
+- `SONATYPE_USERNAME` is my Sonatype username;
+- `SONATYPE_PASSWORD` is my Sonatype password.
+
+These are stored in secrets in Github Actions.

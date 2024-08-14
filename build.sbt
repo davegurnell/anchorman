@@ -1,7 +1,7 @@
 organization in ThisBuild := "com.davegurnell"
 
-scalaVersion in ThisBuild := "2.13.1"
-crossScalaVersions in ThisBuild := Seq("2.12.12", "2.13.1")
+scalaVersion in ThisBuild := "2.13.14"
+crossScalaVersions in ThisBuild := Seq("2.13.14")
 
 // Common Project Settings
 
@@ -113,14 +113,11 @@ lazy val anchormanCore = project
     scalacOptions ++= commonScalacOptions,
     libraryDependencies ++= commonLibraryDependencies,
     libraryDependencies ++= Seq(
-      "com.davegurnell" %% "unindent" % "1.3.1",
-      "com.outr"        %% "hasher"   % "1.2.2",
-      "joda-time"       % "joda-time" % "2.10.5",
-      // "org.apache.poi"         % "poi"               % "4.1.1",
-      // "org.apache.poi"         % "poi-ooxml"         % "4.1.1",
-      // "org.apache.poi"         % "poi-ooxml-schemas" % "4.1.1",
+      "com.davegurnell"        %% "unindent"  % "1.3.1",
+      "com.outr"               %% "hasher"    % "1.2.2",
+      "joda-time"              % "joda-time"  % "2.10.5",
       "org.apache.xmlgraphics" % "fop"        % "2.1",
-      "org.scala-lang.modules" %% "scala-xml" % "1.2.0",
+      "org.scala-lang.modules" %% "scala-xml" % "2.2.0",
       "org.typelevel"          %% "cats-core" % "2.1.0",
     )
   )
@@ -136,8 +133,9 @@ lazy val anchormanPlay = project
     scalacOptions ++= commonScalacOptions,
     libraryDependencies ++= commonLibraryDependencies,
     libraryDependencies ++= Seq(
-      "com.typesafe.play" %% "play-ws"     % "2.7.4" % Provided,
-      "com.typesafe.play" %% "play-ahc-ws" % "2.7.4" % Provided
+      "org.playframework" %% "play-ws"     % "3.0.0" % Provided,
+      "org.playframework" %% "play-ahc-ws" % "3.0.0" % Provided,
+      "javax.xml.bind"    % "jaxb-api"     % "2.3.1",
     )
   )
 

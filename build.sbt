@@ -38,6 +38,10 @@ ThisBuild / githubWorkflowJavaVersions := Seq(
   JavaSpec.temurin("17")
 )
 
+// Publishing -----------------------------------
+
+usePgpKeyHex("93EB089E23C95A4AAC03B32DE679A8D04452EE29")
+
 ThisBuild / githubWorkflowTargetTags ++= Seq("v*")
 
 ThisBuild / githubWorkflowPublishTargetBranches := Seq(RefPredicate.StartsWith(Ref.Tag("v")))
@@ -53,14 +57,6 @@ ThisBuild / githubWorkflowPublish := Seq(
     )
   )
 )
-
-// Publishing -----------------------------------
-
-publishMavenStyle := true
-
-isSnapshot := version.value.endsWith("SNAPSHOT")
-
-usePgpKeyHex("93EB089E23C95A4AAC03B32DE679A8D04452EE29")
 
 ThisBuild / licenses += ("Apache-2.0", url("http://apache.org/licenses/LICENSE-2.0"))
 
@@ -107,7 +103,7 @@ lazy val coreIt = project
     publish := {},
     publishLocal := {},
     publishArtifact := false,
-    publish / skip := true,
+    publish / skip := true
   )
 
 lazy val play = project
@@ -143,8 +139,3 @@ lazy val anchorman = project
   .in(file("."))
   .aggregate(core, coreIt, play, playIt)
   .settings(publishArtifact := false)
-
-// Command Aliases ------------------------------
-
-addCommandAlias("ci", ";clean ;coverage ;compile ;test ;coverageReport")
-addCommandAlias("release", ";+publishSigned ;sonatypeReleaseAll")
